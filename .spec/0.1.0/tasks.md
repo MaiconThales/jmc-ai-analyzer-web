@@ -6,7 +6,7 @@
 - [x] **F1.2:** Definir configurações de ambiente para a URL do backend.
 - [ ] **F1.3:** Configurar lint, testes e build de produção.
 - [x] **F1.4:** Criar `Dockerfile` multi-stage e configuração Nginx.
-- [ ] **F1.5:** Validar execução do frontend no container.
+- [x] **F1.5:** Validar execução do frontend no container.
 
 ## Épico 2 — Modelos e integração REST
 
