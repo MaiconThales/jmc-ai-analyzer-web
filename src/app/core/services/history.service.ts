@@ -1,0 +1,2 @@
+import { Injectable } from '@angular/core'; import { HttpClient } from '@angular/common/http'; import { Observable } from 'rxjs'; import { environment } from '../../../environments/environment'; import { AnalysisSession, Page } from '../models/analysis.models';
+@Injectable({providedIn:'root'}) export class HistoryService { constructor(private http:HttpClient){} list():Observable<Page<AnalysisSession>|AnalysisSession[]> {return this.http.get<Page<AnalysisSession>|AnalysisSession[]>(`${environment.apiUrl}/analyses/history`);} }

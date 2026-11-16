@@ -1,0 +1,11 @@
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/">JFR<span>/</span>Insight</a>
+    <nav aria-label="Navegação principal">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Nova análise</a>
+      <a routerLink="/history" routerLinkActive="active">Histórico</a>
+    </nav>
+    <span class="api-status" [class.offline]="apiStatus() === 'offline'"><i></i>{{ apiStatus() === 'offline' ? 'API indisponível' : 'API conectada' }}</span>
+  </header>
+  <main class="page"><router-outlet /></main>
+</div>
