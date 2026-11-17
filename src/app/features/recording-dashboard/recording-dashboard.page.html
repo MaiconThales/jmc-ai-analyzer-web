@@ -1,0 +1,59 @@
+<div class="page">
+  @if (remote.loading()) {
+    <app-loading-state label="Carregando o dashboard" />
+  } @else if (notReady()) {
+    <div class="panel" role="alert">
+      <h1 class="page-title">{{ notReadyText() }}</h1>
+      <p class="muted">Estado da gravação: {{ remote.error()?.properties?.['status'] }}</p>
+      @if (remote.error()?.properties?.['errorMessage']; as detail) {
+        <p class="muted">{{ detail }}</p>
+      }
+      <a routerLink="/history">Voltar ao histórico</a>
+    </div>
+  } @else if (remote.error(); as error) {
+    @if (error.code === 'NOT_FOUND') {
+      <div class="panel" role="alert">
+        <h1 class="page-title">Gravação não encontrada</h1>
+        <a routerLink="/history">Voltar ao histórico</a>
+      </div>
+    } @else {
+      <app-error-state [error]="error" (retry)="load()" />
+    }
+  } @else if (remote.data(); as d) {
+    <header class="dash-head">
+      <div>
+        <p class="crumb muted">{{ d.software }} {{ d.softwareVersion ?? '' }} · {{ d.metadata?.jvm?.name }} ·
+          {{ d.metadata?.durationMs | duration }}</p>
+        <h1 class="page-title">{{ d.originalName }}</h1>
+        <a [routerLink]="['/batches', d.batchId, 'dashboard']">Ver o lote completo</a>
+      </div>
+      <div class="dash-actions">
+        <app-health-badge [score]="d.healthScore" />
+        <app-topn-select [value]="effectiveTopN()" [options]="configStore.topNOptions()" (changed)="changeTopN($event)" />
+      </div>
+    </header>
+
+    @if (model(); as m) {
+      <app-diagnosis-list [items]="m.diagnosis" />
+      <app-coverage-panel [coverage]="m.coverage" />
+      <app-metrics-blocks [model]="m" />
+      <app-findings-list [findings]="m.findings" />
+    }
+
+    <section id="metadata" class="panel block-gap" aria-labelledby="meta-title">
+      <details>
+        <summary><h2 id="meta-title">Metadados</h2></summary>
+        <dl class="meta">
+          <dt>JVM</dt><dd>{{ d.metadata?.jvm?.version }}</dd>
+          <dt>Argumentos da JVM</dt><dd><code>{{ d.metadata?.jvm?.jvmArgs }}</code></dd>
+          <dt>Argumentos da aplicação</dt><dd><code>{{ d.metadata?.jvm?.javaArgs }}</code></dd>
+          <dt>Sistema operacional</dt><dd>{{ d.metadata?.os }}</dd>
+          <dt>Núcleos</dt><dd>{{ d.metadata?.cpuCores }}</dd>
+          <dt>Memória física</dt><dd>{{ d.metadata?.physicalMemoryBytes | bytes }}</dd>
+          <dt>Eventos</dt><dd>{{ d.metadata?.eventCount }}</dd>
+          <dt>Versão do extrator</dt><dd>{{ d.parserVersion }}</dd>
+        </dl>
+      </details>
+    </section>
+  }
+</div>

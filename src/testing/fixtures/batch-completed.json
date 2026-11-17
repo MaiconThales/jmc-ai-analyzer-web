@@ -1,0 +1,42 @@
+{
+    "batchId": "e4ade0c8-0cb8-4294-95f2-1ad75e338a8d",
+    "software": "fixture-app",
+    "softwareVersion": "1.4.2",
+    "environment": "PROD",
+    "description": "lentid\u00e3o no fechamento",
+    "status": "COMPLETED",
+    "createdAt": "2026-11-17T16:48:11.392920Z",
+    "finishedAt": "2026-11-17T16:48:11.923274Z",
+    "recordings": [
+        {
+            "id": "6a596157-11fb-4255-acb7-8368707c1a13",
+            "originalName": "jmc-29300-1794599415713.jfr",
+            "sizeBytes": 1472984,
+            "status": "COMPLETED",
+            "processingStartedAt": "2026-11-17T16:48:11.403453Z",
+            "processingFinishedAt": "2026-11-17T16:48:11.729922Z",
+            "errorCode": null,
+            "errorMessage": null
+        },
+        {
+            "id": "fc3a21be-8d2b-47b9-93fe-e5761048e253",
+            "originalName": "jmc-29300-1794599647835.jfr",
+            "sizeBytes": 1540976,
+            "status": "COMPLETED",
+            "processingStartedAt": "2026-11-17T16:48:11.405146Z",
+            "processingFinishedAt": "2026-11-17T16:48:11.729925Z",
+            "errorCode": null,
+            "errorMessage": null
+        },
+        {
+            "id": "8b216bce-f3e9-4cf8-9b07-a254f92736ab",
+            "originalName": "jmc-29300-1794599808505.jfr",
+            "sizeBytes": 1588190,
+            "status": "COMPLETED",
+            "processingStartedAt": "2026-11-17T16:48:11.831887Z",
+            "processingFinishedAt": "2026-11-17T16:48:11.892775Z",
+            "errorCode": null,
+            "errorMessage": null
+        }
+    ]
+}

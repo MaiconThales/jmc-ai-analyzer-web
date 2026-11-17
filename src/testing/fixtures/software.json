@@ -1,0 +1,18 @@
+[
+    {
+        "name": "compose-demo",
+        "retentionDays": 90,
+        "appPackages": [],
+        "batchCount": 1,
+        "lastBatchAt": "2026-11-17T16:03:05.659460Z",
+        "lastVersion": null
+    },
+    {
+        "name": "fixture-app",
+        "retentionDays": 90,
+        "appPackages": [],
+        "batchCount": 2,
+        "lastBatchAt": "2026-11-17T16:48:11.444776Z",
+        "lastVersion": null
+    }
+]

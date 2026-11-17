@@ -1,0 +1,32 @@
+{
+    "batchId": "703f6762-820c-4cf9-a85d-d601ac2edaf0",
+    "software": "fixture-app",
+    "softwareVersion": null,
+    "environment": null,
+    "description": null,
+    "status": "PARTIAL",
+    "createdAt": "2026-11-17T16:48:11.444776Z",
+    "finishedAt": "2026-11-17T16:48:11.932069Z",
+    "recordings": [
+        {
+            "id": "87700934-72ef-4d04-a3bc-6f0100ea3055",
+            "originalName": "jmc-29300-1794599415713.jfr",
+            "sizeBytes": 1472984,
+            "status": "COMPLETED",
+            "processingStartedAt": "2026-11-17T16:48:11.832340Z",
+            "processingFinishedAt": "2026-11-17T16:48:11.886234Z",
+            "errorCode": null,
+            "errorMessage": null
+        },
+        {
+            "id": "7308e9ea-e153-4657-babf-fe9b8caf19d4",
+            "originalName": "broken.jfr",
+            "sizeBytes": 500000,
+            "status": "FAILED",
+            "processingStartedAt": "2026-11-17T16:48:11.922645Z",
+            "processingFinishedAt": "2026-11-17T16:48:11.930245Z",
+            "errorCode": "PARSE_ERROR",
+            "errorMessage": "N\u00e3o foi poss\u00edvel ler a grava\u00e7\u00e3o JFR: No readable chunks in recording"
+        }
+    ]
+}

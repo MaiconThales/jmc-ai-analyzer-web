@@ -1,0 +1,53 @@
+<div class="page">
+  @if (remote.loading()) {
+    <app-loading-state label="Carregando o dashboard do lote" />
+  } @else if (remote.error(); as error) {
+    @if (error.code === 'NOT_READY') {
+      <div class="panel" role="alert">
+        <h1 class="page-title">Nenhuma gravação do lote foi concluída</h1>
+        <a [routerLink]="['/batches', batchId()]">Ver o status do lote</a>
+      </div>
+    } @else if (error.code === 'NOT_FOUND') {
+      <div class="panel" role="alert">
+        <h1 class="page-title">Lote não encontrado</h1>
+        <a routerLink="/history">Voltar ao histórico</a>
+      </div>
+    } @else {
+      <app-error-state [error]="error" (retry)="load()" />
+    }
+  } @else if (remote.data(); as d) {
+    <header class="dash-head">
+      <div>
+        <p class="crumb muted">Lote · {{ d.environment ?? 'ambiente não informado' }}</p>
+        <h1 class="page-title">{{ d.software }} {{ d.softwareVersion ?? '' }}</h1>
+        <p class="muted">{{ d.metadata?.recordingCount }} gravações concluídas · {{ d.metadata?.totalDurationMs | duration }} no total
+          @if (d.description) {
+            · “{{ d.description }}”
+          }
+        </p>
+        <a [routerLink]="['/batches', d.batchId]">Ver o status do lote</a>
+      </div>
+      <div class="dash-actions">
+        <app-health-badge [score]="d.healthScore" />
+        <app-topn-select [value]="effectiveTopN()" [options]="configStore.topNOptions()" (changed)="changeTopN($event)" />
+      </div>
+    </header>
+
+    @if (d.excludedRecordings?.length) {
+      <div class="warning" role="status">
+        ⚠ {{ d.excludedRecordings?.length }} gravação(ões) ficaram fora do consolidado:
+        @for (r of d.excludedRecordings ?? []; track r.id; let last = $last) {
+          <strong>{{ r.originalName }}</strong> ({{ r.status }}){{ last ? '' : ', ' }}
+        }
+      </div>
+    }
+
+    @if (model(); as m) {
+      <app-diagnosis-list [items]="m.diagnosis" [names]="m.recordingNames" [totalRecordings]="totalRecordings()" />
+      <app-comparison-table [rows]="d.comparison ?? []" />
+      <app-coverage-panel [coverage]="m.coverage" />
+      <app-metrics-blocks [model]="m" />
+      <app-findings-list [findings]="m.findings" />
+    }
+  }
+</div>

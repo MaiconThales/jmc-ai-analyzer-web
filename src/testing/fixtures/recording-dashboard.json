@@ -1,0 +1,4238 @@
+{
+    "recordingId": "6a596157-11fb-4255-acb7-8368707c1a13",
+    "batchId": "e4ade0c8-0cb8-4294-95f2-1ad75e338a8d",
+    "software": "fixture-app",
+    "softwareVersion": "1.4.2",
+    "originalName": "jmc-29300-1794599415713.jfr",
+    "parserVersion": "0.1.0-SNAPSHOT+jmc-9.1.2",
+    "healthScore": 8,
+    "diagnosis": [
+        {
+            "priority": "ALTA",
+            "category": "AMBIENTE",
+            "source": "JMC:CompareCpu",
+            "score": 80,
+            "title": "Outros processos consumindo CPU",
+            "evidence": "An average CPU load of 43\u00a0% was caused by other processes for during 11/13/2026, 7:51:00.000 PM \u2013 7:51:13 PM.",
+            "action": "As medi\u00e7\u00f5es podem estar distorcidas; grave num ambiente isolado ou limite os outros processos.",
+            "domainRef": "cpu"
+        },
+        {
+            "priority": "MEDIA",
+            "category": "MEMORIA",
+            "source": "JMC:Allocations.thread",
+            "score": 74,
+            "title": "Thread com maior volume de aloca\u00e7\u00e3o",
+            "evidence": "The most allocations were likely done by thread ''org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1'' at:",
+            "action": "Revise o c\u00f3digo executado por essa thread: montagem de mensagens, convers\u00f5es para String e c\u00f3pias de arrays.",
+            "domainRef": "allocation"
+        },
+        {
+            "priority": "MEDIA",
+            "category": "MEMORIA",
+            "source": "JMC:Allocations.class",
+            "score": 71,
+            "title": "Tipo mais alocado",
+            "evidence": "The most allocated type is likely ''java.lang.String'', most commonly allocated by: String java.lang.Integer.toUnsignedString0(int, int),String java.lang.Integer.toHexString(int),String br.com.sascar.core.tacweb.util.HexaUtil.converteString(byte)",
+            "action": "Veja quem aloca esse tipo no top de aloca\u00e7\u00e3o e reduza inst\u00e2ncias tempor\u00e1rias.",
+            "domainRef": "allocation"
+        },
+        {
+            "priority": "MEDIA",
+            "category": "CONFIG_JVM",
+            "source": "APP:ACTIVE_PROCESSOR_COUNT",
+            "score": 50,
+            "title": "JVM limitada a menos processadores que a m\u00e1quina",
+            "evidence": "-XX:ActiveProcessorCount=1 com 12 processadores dispon\u00edveis: GC, JIT e pools usam menos threads.",
+            "action": "Remova -XX:ActiveProcessorCount ou ajuste para a quantidade real de processadores destinada \u00e0 aplica\u00e7\u00e3o.",
+            "domainRef": "metadata"
+        },
+        {
+            "priority": "MEDIA",
+            "category": "MEMORIA",
+            "source": "APP:ALLOCATION_RATE_HIGH",
+            "score": 50,
+            "title": "Taxa de aloca\u00e7\u00e3o alta",
+            "evidence": "Taxa de aloca\u00e7\u00e3o de 1.7 GB/s; o tipo mais alocado \u00e9 java.lang.String.",
+            "location": {
+                "thread": null,
+                "target": null,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Integer",
+                        "m": "toUnsignedString0",
+                        "d": "(II)Ljava/lang/String;",
+                        "l": 369
+                    },
+                    {
+                        "c": "java.lang.Integer",
+                        "m": "toHexString",
+                        "d": "(I)Ljava/lang/String;",
+                        "l": 286
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteString",
+                        "d": "(B)Ljava/lang/String;",
+                        "l": 23
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "getComando",
+                        "d": "(I)Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 283
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 220
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "converteString",
+                    "d": "(B)Ljava/lang/String;",
+                    "l": 23
+                }
+            },
+            "action": "Reduza aloca\u00e7\u00f5es tempor\u00e1rias no ponto indicado (reuso de buffers, menos convers\u00f5es para String, evitar boxing).",
+            "domainRef": "allocation"
+        },
+        {
+            "priority": "MEDIA",
+            "category": "CONFIG_JVM",
+            "source": "APP:TIERED_STOP_LEVEL",
+            "score": 50,
+            "title": "Flag da JVM limita o compilador ao C1",
+            "evidence": "-XX:TieredStopAtLevel=1 est\u00e1 ativo (a flag aparece 2 vezes; vale a \u00faltima). S\u00f3 o compilador C1 \u00e9 usado, e o c\u00f3digo fica mais lento.",
+            "action": "Remova -XX:TieredStopAtLevel (configura\u00e7\u00e3o de IDE para subir r\u00e1pido); em produ\u00e7\u00e3o, n\u00e3o use a flag.",
+            "domainRef": "metadata"
+        },
+        {
+            "priority": "MEDIA",
+            "category": "GC",
+            "source": "JMC:GcInvertedParallelism",
+            "score": 50,
+            "title": "Inverted Parallelism",
+            "evidence": "Inverted Parallelism detected 21 times out of 24 recorded events.",
+            "action": "There is evidence of inverted parallelism. With parallel (multi-threaded) collector events, the \"user\" + \"sys\" time should be approximately equal to the \"real\" (wall) time multiplied by the # of GC threads. For example, if there are 3 GC threads we would expect a parallel collection that takes 1 second of \"real\" time to take approximately 3 seconds of \"user\" + \"sys\" time. The parallelism is 3x. If the parallelism is 1x (\"user\" + \"sys\" = \"real\"), the parallel collection is not offering any efficiency over a serial (single-threaded) collection. When \"user\" + \"sys\" < \"real\", the parallelism is inverted. Inverted parallelism can be a sign of high i/o (e.g. disk or network access) or not enough CPU (e.g. GC threads competing with each other or other processes). Check for swapping and if the number of GC threads (-XX:ParallelGCThreads=) is appropriate for the number of cpu/cores and any processes sharing cpu.",
+            "domainRef": "findings"
+        },
+        {
+            "priority": "MEDIA",
+            "category": "CONFIG_JVM",
+            "source": "JMC:StackdepthSetting",
+            "score": 50,
+            "title": "Stackdepth Setting",
+            "evidence": "Some stack traces were truncated in this recording.",
+            "action": "The Flight Recorder is configured with a maximum captured stack depth of 64. 14.1\u00a0% of all traces were larger than this option, and were therefore truncated. If more detailed traces are required, increase the ''-XX:FlightRecorderOptions=stackdepth='' value.\nEvents of the following types have truncated stack traces: Method Profiling Sample (1.36\u00a0% truncated traces),Method Profiling Sample Native (20\u00a0% truncated traces),Object Allocation Sample (0.531\u00a0% truncated traces),Socket Read (100\u00a0% truncated traces)",
+            "domainRef": "findings"
+        },
+        {
+            "priority": "MEDIA",
+            "category": "AMBIENTE",
+            "source": "JMC:ManyRunningProcesses",
+            "score": 43,
+            "title": "Muitos processos na m\u00e1quina",
+            "evidence": "316 processes were running while this Flight Recording was made.",
+            "action": "Em servidores, mantenha apenas os processos necess\u00e1rios junto da aplica\u00e7\u00e3o.",
+            "domainRef": "cpu"
+        },
+        {
+            "priority": "BAIXA",
+            "category": "GRAVACAO",
+            "source": "APP:RECORDING_COVERAGE",
+            "score": 15,
+            "title": "Grava\u00e7\u00e3o com dados incompletos",
+            "evidence": "Dom\u00ednios sem dados suficientes: HOT_METHODS (INSUFICIENTE), EXCEPTIONS (AUSENTE), FILE_IO (AUSENTE).",
+            "action": "Grave novamente seguindo as recomenda\u00e7\u00f5es da cobertura e o comando sugerido.",
+            "domainRef": "coverage"
+        },
+        {
+            "priority": "BAIXA",
+            "category": "CONFIG_JVM",
+            "source": "JMC:DuplicateFlags",
+            "score": 15,
+            "title": "Flags da JVM duplicadas",
+            "evidence": "1 duplicated JVM flags found.",
+            "action": "Mantenha cada flag uma \u00fanica vez; quando repetida, s\u00f3 a \u00faltima vale.",
+            "domainRef": "metadata"
+        },
+        {
+            "priority": "BAIXA",
+            "category": "CONFIG_JVM",
+            "source": "JMC:GcOptions",
+            "score": 15,
+            "title": "GC configurado com uma \u00fanica thread",
+            "evidence": "The JVM ran with a parallel GC but with only one GC thread.",
+            "action": "Revise -XX:ActiveProcessorCount e -XX:ParallelGCThreads para que o GC use mais threads.",
+            "domainRef": "gc"
+        },
+        {
+            "priority": "BAIXA",
+            "category": "IO",
+            "source": "JMC:SocketRead",
+            "score": 15,
+            "title": "Socket Read Peak Duration",
+            "evidence": "There are long socket read pauses in this recording (the longest is 275.651\u00a0ms).",
+            "action": "The longest recorded socket read took 275.651\u00a0ms to read 5\u00a0B from the host at 10.1.101.239. Average time of recorded IO: 26.421\u00a0ms. Total time of recorded IO: 46.502\u00a0s. Total time of recorded IO for the host 10.1.101.239: 46.502\u00a0s. Note that there are some socket read patterns with high duration reads that we consider to be normal and are therefore excluded. Such patterns include JMX RMI communication and MQ series.",
+            "domainRef": "findings"
+        }
+    ],
+    "coverage": {
+        "items": [
+            {
+                "domain": "CPU",
+                "status": "OK",
+                "reason": "58 eventos.",
+                "recommendation": null
+            },
+            {
+                "domain": "HEAP",
+                "status": "OK",
+                "reason": "48 eventos.",
+                "recommendation": null
+            },
+            {
+                "domain": "GC",
+                "status": "OK",
+                "reason": "24 eventos.",
+                "recommendation": null
+            },
+            {
+                "domain": "THREADS",
+                "status": "OK",
+                "reason": "58 eventos.",
+                "recommendation": null
+            },
+            {
+                "domain": "LOCKS",
+                "status": "OK",
+                "reason": "711 eventos.",
+                "recommendation": null
+            },
+            {
+                "domain": "HOT_METHODS",
+                "status": "INSUFICIENTE",
+                "reason": "220 amostras em 60 s (m\u00ednimo recomendado: 1000); grava\u00e7\u00e3o de 60 s (m\u00ednimo recomendado: 5 min).",
+                "recommendation": "Grave por mais tempo sob carga real ou use settings=profile (amostragem a cada 10 ms)."
+            },
+            {
+                "domain": "ALLOCATION",
+                "status": "OK",
+                "reason": "10545 eventos.",
+                "recommendation": null
+            },
+            {
+                "domain": "EXCEPTIONS",
+                "status": "AUSENTE",
+                "reason": "jdk.JavaExceptionThrow desabilitado na grava\u00e7\u00e3o.",
+                "recommendation": "Habilite jdk.JavaExceptionThrow para ver todas as exce\u00e7\u00f5es lan\u00e7adas (n\u00e3o s\u00f3 os erros)."
+            },
+            {
+                "domain": "FILE_IO",
+                "status": "AUSENTE",
+                "reason": "jdk.FileRead habilitado (limiar 10 ms), mas sem ocorr\u00eancias.",
+                "recommendation": "Reduza o threshold de jdk.FileRead/jdk.FileWrite (padr\u00e3o 10\u201320 ms) para capturar mais opera\u00e7\u00f5es."
+            },
+            {
+                "domain": "SOCKET_IO",
+                "status": "OK",
+                "reason": "1760 eventos.",
+                "recommendation": null
+            },
+            {
+                "domain": "LEAK",
+                "status": "OK",
+                "reason": "37 eventos.",
+                "recommendation": null
+            },
+            {
+                "domain": "THREAD_CPU",
+                "status": "OK",
+                "reason": "27 eventos.",
+                "recommendation": null
+            }
+        ],
+        "suggestedCommand": "-XX:StartFlightRecording=settings=profile,duration=10m,filename=app.jfr,jdk.JavaExceptionThrow#enabled=true,jdk.FileRead#threshold=1ms,jdk.FileWrite#threshold=1ms"
+    },
+    "metadata": {
+        "start": "2026-11-13T19:50:15.980705Z",
+        "end": "2026-11-13T19:51:16.018Z",
+        "durationMs": 60037,
+        "eventCount": 36758,
+        "jvm": {
+            "name": "Java HotSpot(TM) 64-Bit Server VM",
+            "version": "Java HotSpot(TM) 64-Bit Server VM (21.0.12+7-LTS-205) for windows-amd64 JRE (21.0.12+7-LTS-205), built on 2026-06-02T04:23:32Z by \"mach5run\" with MS VC++ 17.13 (VS2022)",
+            "jvmArgs": "-XX:ActiveProcessorCount=1 -Xms512m -Xmx768m -XX:+UseG1GC -XX:TieredStopAtLevel=4 -XX:TieredStopAtLevel=1 -Dspring.profiles.active=local -Dspring.output.ansi.enabled=always -Didea.launcher.port=54910 -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8",
+            "javaArgs": "com.intellij.rt.execution.application.AppMainV2 br.com.sascar.core.tacweb.StartApplication"
+        },
+        "os": "OS:",
+        "cpuCores": 6,
+        "physicalMemoryBytes": 34049216512
+    },
+    "cpu": {
+        "available": true,
+        "jvmAvg": 0.020497400606661265,
+        "jvmMax": 0.03866248391568661,
+        "machineAvg": 0.2604714049475974,
+        "machineMax": 0.7381241321563721,
+        "series": {
+            "CPU_JVM_USER": [
+                {
+                    "ts": "2026-11-13T19:50:16.034016Z",
+                    "avg": 0.017756028100848198,
+                    "max": 0.017756028100848198
+                },
+                {
+                    "ts": "2026-11-13T19:50:17.072307Z",
+                    "avg": 0.021268455311655998,
+                    "max": 0.021268455311655998
+                },
+                {
+                    "ts": "2026-11-13T19:50:18.122718Z",
+                    "avg": 0.030970172956585884,
+                    "max": 0.030970172956585884
+                },
+                {
+                    "ts": "2026-11-13T19:50:19.166005Z",
+                    "avg": 0.006238708272576332,
+                    "max": 0.006238708272576332
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.209182Z",
+                    "avg": 0.01875055767595768,
+                    "max": 0.01875055767595768
+                },
+                {
+                    "ts": "2026-11-13T19:50:21.256195Z",
+                    "avg": 0.013690756633877754,
+                    "max": 0.013690756633877754
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.285063Z",
+                    "avg": 0.013895247131586075,
+                    "max": 0.013895247131586075
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.310125Z",
+                    "avg": 0.010138362646102905,
+                    "max": 0.010138362646102905
+                },
+                {
+                    "ts": "2026-11-13T19:50:24.334584Z",
+                    "avg": 0.007628004532307386,
+                    "max": 0.007628004532307386
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.356485Z",
+                    "avg": 0.010190657339990139,
+                    "max": 0.010190657339990139
+                },
+                {
+                    "ts": "2026-11-13T19:50:26.420974Z",
+                    "avg": 0.011032717302441597,
+                    "max": 0.011032717302441597
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.467757Z",
+                    "avg": 0.01491121668368578,
+                    "max": 0.01491121668368578
+                },
+                {
+                    "ts": "2026-11-13T19:50:28.508765Z",
+                    "avg": 0.0062516299076378345,
+                    "max": 0.0062516299076378345
+                },
+                {
+                    "ts": "2026-11-13T19:50:29.534443Z",
+                    "avg": 0.007611273787915707,
+                    "max": 0.007611273787915707
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.562493Z",
+                    "avg": 0.008866009302437305,
+                    "max": 0.008866009302437305
+                },
+                {
+                    "ts": "2026-11-13T19:50:31.588253Z",
+                    "avg": 0.007608598098158836,
+                    "max": 0.007608598098158836
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.615011Z",
+                    "avg": 0.010154122486710548,
+                    "max": 0.010154122486710548
+                },
+                {
+                    "ts": "2026-11-13T19:50:33.643795Z",
+                    "avg": 0.0050597344525158405,
+                    "max": 0.0050597344525158405
+                },
+                {
+                    "ts": "2026-11-13T19:50:34.668742Z",
+                    "avg": 0.008889197371900082,
+                    "max": 0.008889197371900082
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.714126Z",
+                    "avg": 0.016228538006544113,
+                    "max": 0.016228538006544113
+                },
+                {
+                    "ts": "2026-11-13T19:50:36.781708Z",
+                    "avg": 0.014638883993029594,
+                    "max": 0.014638883993029594
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.826755Z",
+                    "avg": 0.02489948458969593,
+                    "max": 0.02489948458969593
+                },
+                {
+                    "ts": "2026-11-13T19:50:38.866768Z",
+                    "avg": 0.006267260760068893,
+                    "max": 0.006267260760068893
+                },
+                {
+                    "ts": "2026-11-13T19:50:39.912990Z",
+                    "avg": 0.013691547326743603,
+                    "max": 0.013691547326743603
+                },
+                {
+                    "ts": "2026-11-13T19:50:40.959234Z",
+                    "avg": 0.011191041208803654,
+                    "max": 0.011191041208803654
+                },
+                {
+                    "ts": "2026-11-13T19:50:42.013250Z",
+                    "avg": 0.024719515815377235,
+                    "max": 0.024719515815377235
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.062007Z",
+                    "avg": 0.023566247895359993,
+                    "max": 0.023566247895359993
+                },
+                {
+                    "ts": "2026-11-13T19:50:44.105759Z",
+                    "avg": 0.031144019216299057,
+                    "max": 0.031144019216299057
+                },
+                {
+                    "ts": "2026-11-13T19:50:45.154849Z",
+                    "avg": 0.01118694432079792,
+                    "max": 0.01118694432079792
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.215664Z",
+                    "avg": 0.006145286373794079,
+                    "max": 0.006145286373794079
+                },
+                {
+                    "ts": "2026-11-13T19:50:47.307536Z",
+                    "avg": 0.027381133288145065,
+                    "max": 0.027381133288145065
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.346666Z",
+                    "avg": 0.021278802305459976,
+                    "max": 0.021278802305459976
+                },
+                {
+                    "ts": "2026-11-13T19:50:49.391264Z",
+                    "avg": 0.024932976812124252,
+                    "max": 0.024932976812124252
+                },
+                {
+                    "ts": "2026-11-13T19:50:50.440939Z",
+                    "avg": 0.012419815175235271,
+                    "max": 0.012419815175235271
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.477644Z",
+                    "avg": 0.02888565883040428,
+                    "max": 0.02888565883040428
+                },
+                {
+                    "ts": "2026-11-13T19:50:52.523756Z",
+                    "avg": 0.023660488426685333,
+                    "max": 0.023660488426685333
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.551926Z",
+                    "avg": 0.012637213803827763,
+                    "max": 0.012637213803827763
+                },
+                {
+                    "ts": "2026-11-13T19:50:54.586309Z",
+                    "avg": 0.02012796327471733,
+                    "max": 0.02012796327471733
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.631541Z",
+                    "avg": 0.018734686076641083,
+                    "max": 0.018734686076641083
+                },
+                {
+                    "ts": "2026-11-13T19:50:56.674191Z",
+                    "avg": 0.011217293329536915,
+                    "max": 0.011217293329536915
+                },
+                {
+                    "ts": "2026-11-13T19:50:57.767254Z",
+                    "avg": 0.027409981936216354,
+                    "max": 0.027409981936216354
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.816434Z",
+                    "avg": 0.024829696863889694,
+                    "max": 0.024829696863889694
+                },
+                {
+                    "ts": "2026-11-13T19:50:59.856198Z",
+                    "avg": 0.006253015249967575,
+                    "max": 0.006253015249967575
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.917378Z",
+                    "avg": 0.022113386541604996,
+                    "max": 0.022113386541604996
+                },
+                {
+                    "ts": "2026-11-13T19:51:01.968661Z",
+                    "avg": 0.02354842610657215,
+                    "max": 0.02354842610657215
+                },
+                {
+                    "ts": "2026-11-13T19:51:03.018741Z",
+                    "avg": 0.008673852309584618,
+                    "max": 0.008673852309584618
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.060289Z",
+                    "avg": 0.018735701218247414,
+                    "max": 0.018735701218247414
+                },
+                {
+                    "ts": "2026-11-13T19:51:05.106453Z",
+                    "avg": 0.024969886988401413,
+                    "max": 0.024969886988401413
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.154389Z",
+                    "avg": 0.019825847819447517,
+                    "max": 0.019825847819447517
+                },
+                {
+                    "ts": "2026-11-13T19:51:07.191650Z",
+                    "avg": 0.01884593442082405,
+                    "max": 0.01884593442082405
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.274711Z",
+                    "avg": 0.02520516887307167,
+                    "max": 0.02520516887307167
+                },
+                {
+                    "ts": "2026-11-13T19:51:09.323556Z",
+                    "avg": 0.019874144345521927,
+                    "max": 0.019874144345521927
+                },
+                {
+                    "ts": "2026-11-13T19:51:10.363176Z",
+                    "avg": 0.02004612796008587,
+                    "max": 0.02004612796008587
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.407859Z",
+                    "avg": 0.03117942251265049,
+                    "max": 0.03117942251265049
+                },
+                {
+                    "ts": "2026-11-13T19:51:12.449837Z",
+                    "avg": 0.011241337284445763,
+                    "max": 0.011241337284445763
+                },
+                {
+                    "ts": "2026-11-13T19:51:13.502540Z",
+                    "avg": 0.022237202152609825,
+                    "max": 0.022237202152609825
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.535891Z",
+                    "avg": 0.02016107738018036,
+                    "max": 0.02016107738018036
+                },
+                {
+                    "ts": "2026-11-13T19:51:15.582046Z",
+                    "avg": 0.008716984651982784,
+                    "max": 0.008716984651982784
+                }
+            ],
+            "CPU_JVM_SYSTEM": [
+                {
+                    "ts": "2026-11-13T19:50:16.034016Z",
+                    "avg": 0.0009937697323039174,
+                    "max": 0.0009937697323039174
+                },
+                {
+                    "ts": "2026-11-13T19:50:17.072307Z",
+                    "avg": 0.0037532567512243986,
+                    "max": 0.0037532567512243986
+                },
+                {
+                    "ts": "2026-11-13T19:50:18.122718Z",
+                    "avg": 0.002477613976225257,
+                    "max": 0.002477613976225257
+                },
+                {
+                    "ts": "2026-11-13T19:50:19.166005Z",
+                    "avg": 0.002495483262464404,
+                    "max": 0.002495483262464404
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.209182Z",
+                    "avg": 0.006250185891985893,
+                    "max": 0.006250185891985893
+                },
+                {
+                    "ts": "2026-11-13T19:50:21.256195Z",
+                    "avg": 0.008712300099432468,
+                    "max": 0.008712300099432468
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.285063Z",
+                    "avg": 0.005052817054092884,
+                    "max": 0.005052817054092884
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.310125Z",
+                    "avg": 0.0025345906615257263,
+                    "max": 0.0025345906615257263
+                },
+                {
+                    "ts": "2026-11-13T19:50:24.334584Z",
+                    "avg": 0.00254266825504601,
+                    "max": 0.00254266825504601
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.356485Z",
+                    "avg": 0.00891682505607605,
+                    "max": 0.00891682505607605
+                },
+                {
+                    "ts": "2026-11-13T19:50:26.420974Z",
+                    "avg": 0.007355144713073969,
+                    "max": 0.007355144713073969
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.467757Z",
+                    "avg": 0.003727804170921445,
+                    "max": 0.003727804170921445
+                },
+                {
+                    "ts": "2026-11-13T19:50:28.508765Z",
+                    "avg": 0.0037509778048843145,
+                    "max": 0.0037509778048843145
+                },
+                {
+                    "ts": "2026-11-13T19:50:29.534443Z",
+                    "avg": 0.0038056368939578533,
+                    "max": 0.0038056368939578533
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.562493Z",
+                    "avg": 0.003799718338996172,
+                    "max": 0.003799718338996172
+                },
+                {
+                    "ts": "2026-11-13T19:50:31.588253Z",
+                    "avg": 0.002536199288442731,
+                    "max": 0.002536199288442731
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.615011Z",
+                    "avg": 0.0038077959325164557,
+                    "max": 0.0038077959325164557
+                },
+                {
+                    "ts": "2026-11-13T19:50:33.643795Z",
+                    "avg": 0.0050597344525158405,
+                    "max": 0.0050597344525158405
+                },
+                {
+                    "ts": "2026-11-13T19:50:34.668742Z",
+                    "avg": 0.0025397706776857376,
+                    "max": 0.0025397706776857376
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.714126Z",
+                    "avg": 0.00249669817276299,
+                    "max": 0.00249669817276299
+                },
+                {
+                    "ts": "2026-11-13T19:50:36.781708Z",
+                    "avg": 0.002439813921228051,
+                    "max": 0.002439813921228051
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.826755Z",
+                    "avg": 0.0012449742062017322,
+                    "max": 0.0012449742062017322
+                },
+                {
+                    "ts": "2026-11-13T19:50:38.866768Z",
+                    "avg": 0.005013808608055115,
+                    "max": 0.005013808608055115
+                },
+                {
+                    "ts": "2026-11-13T19:50:39.912990Z",
+                    "avg": 0.003734058467671275,
+                    "max": 0.003734058467671275
+                },
+                {
+                    "ts": "2026-11-13T19:50:40.959234Z",
+                    "avg": 0.002486898098140955,
+                    "max": 0.002486898098140955
+                },
+                {
+                    "ts": "2026-11-13T19:50:42.013250Z",
+                    "avg": 0.006179878953844309,
+                    "max": 0.006179878953844309
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.062007Z",
+                    "avg": 0.004961315542459488,
+                    "max": 0.004961315542459488
+                },
+                {
+                    "ts": "2026-11-13T19:50:44.105759Z",
+                    "avg": 0.00249152141623199,
+                    "max": 0.00249152141623199
+                },
+                {
+                    "ts": "2026-11-13T19:50:45.154849Z",
+                    "avg": 0.004971974994987249,
+                    "max": 0.004971974994987249
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.215664Z",
+                    "avg": 0.0,
+                    "max": 0.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:47.307536Z",
+                    "avg": 0.005952420178800821,
+                    "max": 0.005952420178800821
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.346666Z",
+                    "avg": 0.001251694280654192,
+                    "max": 0.001251694280654192
+                },
+                {
+                    "ts": "2026-11-13T19:50:49.391264Z",
+                    "avg": 0.003739946521818638,
+                    "max": 0.003739946521818638
+                },
+                {
+                    "ts": "2026-11-13T19:50:50.440939Z",
+                    "avg": 0.004967926070094109,
+                    "max": 0.004967926070094109
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.477644Z",
+                    "avg": 0.005023592617362738,
+                    "max": 0.005023592617362738
+                },
+                {
+                    "ts": "2026-11-13T19:50:52.523756Z",
+                    "avg": 0.0049811555072665215,
+                    "max": 0.0049811555072665215
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.551926Z",
+                    "avg": 0.0025274427607655525,
+                    "max": 0.0025274427607655525
+                },
+                {
+                    "ts": "2026-11-13T19:50:54.586309Z",
+                    "avg": 0.0012579977046698332,
+                    "max": 0.0012579977046698332
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.631541Z",
+                    "avg": 0.0037469372618943453,
+                    "max": 0.0037469372618943453
+                },
+                {
+                    "ts": "2026-11-13T19:50:56.674191Z",
+                    "avg": 0.0024927319027483463,
+                    "max": 0.0024927319027483463
+                },
+                {
+                    "ts": "2026-11-13T19:50:57.767254Z",
+                    "avg": 0.002383476821705699,
+                    "max": 0.002383476821705699
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.816434Z",
+                    "avg": 0.0,
+                    "max": 0.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:59.856198Z",
+                    "avg": 0.003751809010282159,
+                    "max": 0.003751809010282159
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.917378Z",
+                    "avg": 0.0024570429231971502,
+                    "max": 0.0024570429231971502
+                },
+                {
+                    "ts": "2026-11-13T19:51:01.968661Z",
+                    "avg": 0.006196954287588596,
+                    "max": 0.006196954287588596
+                },
+                {
+                    "ts": "2026-11-13T19:51:03.018741Z",
+                    "avg": 0.002478243550285697,
+                    "max": 0.002478243550285697
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.060289Z",
+                    "avg": 0.0024980935268104076,
+                    "max": 0.0024980935268104076
+                },
+                {
+                    "ts": "2026-11-13T19:51:05.106453Z",
+                    "avg": 0.003745483001694083,
+                    "max": 0.003745483001694083
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.154389Z",
+                    "avg": 0.004956461954861879,
+                    "max": 0.004956461954861879
+                },
+                {
+                    "ts": "2026-11-13T19:51:07.191650Z",
+                    "avg": 0.002512791194021702,
+                    "max": 0.002512791194021702
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.274711Z",
+                    "avg": 0.003600738476961851,
+                    "max": 0.003600738476961851
+                },
+                {
+                    "ts": "2026-11-13T19:51:09.323556Z",
+                    "avg": 0.002484268043190241,
+                    "max": 0.002484268043190241
+                },
+                {
+                    "ts": "2026-11-13T19:51:10.363176Z",
+                    "avg": 0.0037586488761007786,
+                    "max": 0.0037586488761007786
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.407859Z",
+                    "avg": 0.0074830614030361176,
+                    "max": 0.0074830614030361176
+                },
+                {
+                    "ts": "2026-11-13T19:51:12.449837Z",
+                    "avg": 0.004996149800717831,
+                    "max": 0.004996149800717831
+                },
+                {
+                    "ts": "2026-11-13T19:51:13.502540Z",
+                    "avg": 0.0024708001874387264,
+                    "max": 0.0024708001874387264
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.535891Z",
+                    "avg": 0.00504026934504509,
+                    "max": 0.00504026934504509
+                },
+                {
+                    "ts": "2026-11-13T19:51:15.582046Z",
+                    "avg": 0.006226417142897844,
+                    "max": 0.006226417142897844
+                }
+            ],
+            "CPU_MACHINE": [
+                {
+                    "ts": "2026-11-13T19:50:16.034016Z",
+                    "avg": 0.15949493646621704,
+                    "max": 0.15949493646621704
+                },
+                {
+                    "ts": "2026-11-13T19:50:17.072307Z",
+                    "avg": 0.5791515707969666,
+                    "max": 0.5791515707969666
+                },
+                {
+                    "ts": "2026-11-13T19:50:18.122718Z",
+                    "avg": 0.12270484119653702,
+                    "max": 0.12270484119653702
+                },
+                {
+                    "ts": "2026-11-13T19:50:19.166005Z",
+                    "avg": 0.2113279104232788,
+                    "max": 0.2113279104232788
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.209182Z",
+                    "avg": 0.3187035322189331,
+                    "max": 0.3187035322189331
+                },
+                {
+                    "ts": "2026-11-13T19:50:21.256195Z",
+                    "avg": 0.29281193017959595,
+                    "max": 0.29281193017959595
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.285063Z",
+                    "avg": 0.27610892057418823,
+                    "max": 0.27610892057418823
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.310125Z",
+                    "avg": 0.11212804168462753,
+                    "max": 0.11212804168462753
+                },
+                {
+                    "ts": "2026-11-13T19:50:24.334584Z",
+                    "avg": 0.059168558567762375,
+                    "max": 0.059168558567762375
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.356485Z",
+                    "avg": 0.12010916322469711,
+                    "max": 0.12010916322469711
+                },
+                {
+                    "ts": "2026-11-13T19:50:26.420974Z",
+                    "avg": 0.15596185624599457,
+                    "max": 0.15596185624599457
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.467757Z",
+                    "avg": 0.08102588355541229,
+                    "max": 0.08102588355541229
+                },
+                {
+                    "ts": "2026-11-13T19:50:28.508765Z",
+                    "avg": 0.16860546171665192,
+                    "max": 0.16860546171665192
+                },
+                {
+                    "ts": "2026-11-13T19:50:29.534443Z",
+                    "avg": 0.0714242234826088,
+                    "max": 0.0714242234826088
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.562493Z",
+                    "avg": 0.08299926668405533,
+                    "max": 0.08299926668405533
+                },
+                {
+                    "ts": "2026-11-13T19:50:31.588253Z",
+                    "avg": 0.15589307248592377,
+                    "max": 0.15589307248592377
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.615011Z",
+                    "avg": 0.06673067063093185,
+                    "max": 0.06673067063093185
+                },
+                {
+                    "ts": "2026-11-13T19:50:33.643795Z",
+                    "avg": 0.09560670703649521,
+                    "max": 0.09560670703649521
+                },
+                {
+                    "ts": "2026-11-13T19:50:34.668742Z",
+                    "avg": 0.11963624507188797,
+                    "max": 0.11963624507188797
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.714126Z",
+                    "avg": 0.11037395894527435,
+                    "max": 0.11037395894527435
+                },
+                {
+                    "ts": "2026-11-13T19:50:36.781708Z",
+                    "avg": 0.10344082117080688,
+                    "max": 0.10344082117080688
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.826755Z",
+                    "avg": 0.1382918357849121,
+                    "max": 0.1382918357849121
+                },
+                {
+                    "ts": "2026-11-13T19:50:38.866768Z",
+                    "avg": 0.11550284922122955,
+                    "max": 0.11550284922122955
+                },
+                {
+                    "ts": "2026-11-13T19:50:39.912990Z",
+                    "avg": 0.35152667760849,
+                    "max": 0.35152667760849
+                },
+                {
+                    "ts": "2026-11-13T19:50:40.959234Z",
+                    "avg": 0.4068664014339447,
+                    "max": 0.4068664014339447
+                },
+                {
+                    "ts": "2026-11-13T19:50:42.013250Z",
+                    "avg": 0.32114169001579285,
+                    "max": 0.32114169001579285
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.062007Z",
+                    "avg": 0.3326916992664337,
+                    "max": 0.3326916992664337
+                },
+                {
+                    "ts": "2026-11-13T19:50:44.105759Z",
+                    "avg": 0.45133236050605774,
+                    "max": 0.45133236050605774
+                },
+                {
+                    "ts": "2026-11-13T19:50:45.154849Z",
+                    "avg": 0.12552239000797272,
+                    "max": 0.12552239000797272
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.215664Z",
+                    "avg": 0.14355412125587463,
+                    "max": 0.14355412125587463
+                },
+                {
+                    "ts": "2026-11-13T19:50:47.307536Z",
+                    "avg": 0.28441521525382996,
+                    "max": 0.28441521525382996
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.346666Z",
+                    "avg": 0.3350028395652771,
+                    "max": 0.3350028395652771
+                },
+                {
+                    "ts": "2026-11-13T19:50:49.391264Z",
+                    "avg": 0.20931024849414825,
+                    "max": 0.20931024849414825
+                },
+                {
+                    "ts": "2026-11-13T19:50:50.440939Z",
+                    "avg": 0.13433314859867096,
+                    "max": 0.13433314859867096
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.477644Z",
+                    "avg": 0.2691827118396759,
+                    "max": 0.2691827118396759
+                },
+                {
+                    "ts": "2026-11-13T19:50:52.523756Z",
+                    "avg": 0.44628092646598816,
+                    "max": 0.44628092646598816
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.551926Z",
+                    "avg": 0.2909126579761505,
+                    "max": 0.2909126579761505
+                },
+                {
+                    "ts": "2026-11-13T19:50:54.586309Z",
+                    "avg": 0.10218380391597748,
+                    "max": 0.10218380391597748
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.631541Z",
+                    "avg": 0.15643315017223358,
+                    "max": 0.15643315017223358
+                },
+                {
+                    "ts": "2026-11-13T19:50:56.674191Z",
+                    "avg": 0.09638030081987381,
+                    "max": 0.09638030081987381
+                },
+                {
+                    "ts": "2026-11-13T19:50:57.767254Z",
+                    "avg": 0.12337866425514221,
+                    "max": 0.12337866425514221
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.816434Z",
+                    "avg": 0.1291789561510086,
+                    "max": 0.1291789561510086
+                },
+                {
+                    "ts": "2026-11-13T19:50:59.856198Z",
+                    "avg": 0.15629956126213074,
+                    "max": 0.15629956126213074
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.917378Z",
+                    "avg": 0.21803045272827148,
+                    "max": 0.21803045272827148
+                },
+                {
+                    "ts": "2026-11-13T19:51:01.968661Z",
+                    "avg": 0.6432294845581055,
+                    "max": 0.6432294845581055
+                },
+                {
+                    "ts": "2026-11-13T19:51:03.018741Z",
+                    "avg": 0.5322238206863403,
+                    "max": 0.5322238206863403
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.060289Z",
+                    "avg": 0.3665855824947357,
+                    "max": 0.3665855824947357
+                },
+                {
+                    "ts": "2026-11-13T19:51:05.106453Z",
+                    "avg": 0.4914364516735077,
+                    "max": 0.4914364516735077
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.154389Z",
+                    "avg": 0.6314588785171509,
+                    "max": 0.6314588785171509
+                },
+                {
+                    "ts": "2026-11-13T19:51:07.191650Z",
+                    "avg": 0.2641042172908783,
+                    "max": 0.2641042172908783
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.274711Z",
+                    "avg": 0.3539610803127289,
+                    "max": 0.3539610803127289
+                },
+                {
+                    "ts": "2026-11-13T19:51:09.323556Z",
+                    "avg": 0.3539726436138153,
+                    "max": 0.3539726436138153
+                },
+                {
+                    "ts": "2026-11-13T19:51:10.363176Z",
+                    "avg": 0.7220510244369507,
+                    "max": 0.7220510244369507
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.407859Z",
+                    "avg": 0.7381241321563721,
+                    "max": 0.7381241321563721
+                },
+                {
+                    "ts": "2026-11-13T19:51:12.449837Z",
+                    "avg": 0.6625458598136902,
+                    "max": 0.6625458598136902
+                },
+                {
+                    "ts": "2026-11-13T19:51:13.502540Z",
+                    "avg": 0.23137831687927246,
+                    "max": 0.23137831687927246
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.535891Z",
+                    "avg": 0.19090048968791962,
+                    "max": 0.19090048968791962
+                },
+                {
+                    "ts": "2026-11-13T19:51:15.582046Z",
+                    "avg": 0.12420926988124847,
+                    "max": 0.12420926988124847
+                }
+            ]
+        }
+    },
+    "heap": {
+        "available": true,
+        "initialBytes": 536870912,
+        "maxBytes": 805306368,
+        "usedPeakBytes": 369038008,
+        "youngCollector": "G1New",
+        "oldCollector": "G1Old",
+        "series": {
+            "HEAP_USED": [
+                {
+                    "ts": "2026-11-13T19:50:18.005422Z",
+                    "avg": 368701504.0,
+                    "max": 368701504.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:18.008505Z",
+                    "avg": 49936464.0,
+                    "max": 49936464.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.115100Z",
+                    "avg": 368703568.0,
+                    "max": 368703568.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.134431Z",
+                    "avg": 60422224.0,
+                    "max": 60422224.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.006627Z",
+                    "avg": 368703568.0,
+                    "max": 368703568.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.023062Z",
+                    "avg": 58325072.0,
+                    "max": 58325072.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.828105Z",
+                    "avg": 368703568.0,
+                    "max": 368703568.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.844058Z",
+                    "avg": 60946512.0,
+                    "max": 60946512.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.246990Z",
+                    "avg": 368179280.0,
+                    "max": 368179280.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.276429Z",
+                    "avg": 62519376.0,
+                    "max": 62519376.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.486646Z",
+                    "avg": 368703568.0,
+                    "max": 368703568.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.550041Z",
+                    "avg": 80869456.0,
+                    "max": 80869456.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.763557Z",
+                    "avg": 368179280.0,
+                    "max": 368179280.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.765079Z",
+                    "avg": 48678368.0,
+                    "max": 48678368.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.113751Z",
+                    "avg": 368494048.0,
+                    "max": 368494048.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.154629Z",
+                    "avg": 80135648.0,
+                    "max": 80135648.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.339062Z",
+                    "avg": 368494048.0,
+                    "max": 368494048.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.343989Z",
+                    "avg": 51311224.0,
+                    "max": 51311224.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.684535Z",
+                    "avg": 369029752.0,
+                    "max": 369029752.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.707542Z",
+                    "avg": 60748408.0,
+                    "max": 60748408.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:41.286762Z",
+                    "avg": 369029752.0,
+                    "max": 369029752.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:41.321729Z",
+                    "avg": 61796984.0,
+                    "max": 61796984.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.788117Z",
+                    "avg": 369029752.0,
+                    "max": 369029752.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.805394Z",
+                    "avg": 54456952.0,
+                    "max": 54456952.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.295734Z",
+                    "avg": 369029752.0,
+                    "max": 369029752.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.366481Z",
+                    "avg": 70185592.0,
+                    "max": 70185592.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.764014Z",
+                    "avg": 369029752.0,
+                    "max": 369029752.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.813372Z",
+                    "avg": 67566216.0,
+                    "max": 67566216.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.172189Z",
+                    "avg": 368507528.0,
+                    "max": 368507528.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.224254Z",
+                    "avg": 64944776.0,
+                    "max": 64944776.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.378725Z",
+                    "avg": 369031816.0,
+                    "max": 369031816.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.415230Z",
+                    "avg": 65993352.0,
+                    "max": 65993352.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.779227Z",
+                    "avg": 369031816.0,
+                    "max": 369031816.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.783506Z",
+                    "avg": 49740424.0,
+                    "max": 49740424.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.585277Z",
+                    "avg": 368507528.0,
+                    "max": 368507528.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.588238Z",
+                    "avg": 49740424.0,
+                    "max": 49740424.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.454150Z",
+                    "avg": 368507528.0,
+                    "max": 368507528.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.518864Z",
+                    "avg": 76479112.0,
+                    "max": 76479112.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.088002Z",
+                    "avg": 369031816.0,
+                    "max": 369031816.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.135691Z",
+                    "avg": 70191784.0,
+                    "max": 70191784.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.803750Z",
+                    "avg": 369035944.0,
+                    "max": 369035944.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.819369Z",
+                    "avg": 56038072.0,
+                    "max": 56038072.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.677036Z",
+                    "avg": 368513720.0,
+                    "max": 368513720.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.712108Z",
+                    "avg": 63902392.0,
+                    "max": 63902392.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.966898Z",
+                    "avg": 369038008.0,
+                    "max": 369038008.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.971808Z",
+                    "avg": 49222328.0,
+                    "max": 49222328.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.277997Z",
+                    "avg": 369038008.0,
+                    "max": 369038008.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.326190Z",
+                    "avg": 72291000.0,
+                    "max": 72291000.0
+                }
+            ],
+            "HEAP_COMMITTED": [
+                {
+                    "ts": "2026-11-13T19:50:18.005422Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:18.008505Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.115100Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.134431Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.006627Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.023062Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.828105Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.844058Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.246990Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.276429Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.486646Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.550041Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.763557Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.765079Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.113751Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.154629Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.339062Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.343989Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.684535Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.707542Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:41.286762Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:41.321729Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.788117Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.805394Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.295734Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.366481Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.764014Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.813372Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.172189Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.224254Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.378725Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.415230Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.779227Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.783506Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.585277Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.588238Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.454150Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.518864Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.088002Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.135691Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.803750Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.819369Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.677036Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.712108Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.966898Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.971808Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.277997Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.326190Z",
+                    "avg": 536870912.0,
+                    "max": 536870912.0
+                }
+            ]
+        }
+    },
+    "gc": {
+        "available": true,
+        "count": 24,
+        "pauseTotalMs": 702.4471,
+        "pauseAvgMs": 29.268629166666667,
+        "pauseP95Ms": 64.7187,
+        "pauseMaxMs": 70.7541,
+        "pausePct": 1.1700236520812164,
+        "topPauses": [
+            {
+                "gcId": 371,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:50:46.295732Z",
+                "durationMs": 70.7541
+            },
+            {
+                "gcId": 377,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:51:00.454148Z",
+                "durationMs": 64.7187
+            },
+            {
+                "gcId": 364,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:50:27.486644Z",
+                "durationMs": 63.39979999999999
+            },
+            {
+                "gcId": 373,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:50:51.172187Z",
+                "durationMs": 52.0708
+            },
+            {
+                "gcId": 372,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:50:48.764012Z",
+                "durationMs": 49.363899999999994
+            },
+            {
+                "gcId": 382,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:51:14.277995Z",
+                "durationMs": 48.197599999999994
+            },
+            {
+                "gcId": 378,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:51:04.088001Z",
+                "durationMs": 47.6939
+            },
+            {
+                "gcId": 366,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:50:32.113749Z",
+                "durationMs": 40.881899999999995
+            },
+            {
+                "gcId": 374,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:50:53.378723Z",
+                "durationMs": 36.509899999999995
+            },
+            {
+                "gcId": 380,
+                "collector": "G1New",
+                "cause": "G1 Evacuation Pause",
+                "start": "2026-11-13T19:51:08.677035Z",
+                "durationMs": 35.0764
+            }
+        ]
+    },
+    "threads": {
+        "available": true,
+        "peak": 32,
+        "daemonPeak": 26,
+        "started": 4,
+        "ended": 2,
+        "series": {
+            "THREADS_ACTIVE": [
+                {
+                    "ts": "2026-11-13T19:50:16.034027Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:17.072315Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:18.122725Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:19.166013Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.209190Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:21.256205Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.285072Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.310131Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:24.334593Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.356492Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:26.420982Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.467763Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:28.508773Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:29.534449Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.562501Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:31.588258Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.615020Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:33.643801Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:34.668748Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.714134Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:36.781721Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.826765Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:38.866777Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:39.912998Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:40.959243Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:42.013262Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.062017Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:44.105767Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:45.154859Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.215671Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:47.307551Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.346673Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:49.391271Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:50.440947Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.477654Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:52.523766Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.551934Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:54.586317Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.631551Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:56.674198Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:57.767261Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.816444Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:59.856206Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.917388Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:01.968671Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:03.018750Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.060296Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:05.106464Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.154396Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:07.191664Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.274720Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:09.323563Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:10.363183Z",
+                    "avg": 31.0,
+                    "max": 31.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.407869Z",
+                    "avg": 32.0,
+                    "max": 32.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:12.449847Z",
+                    "avg": 32.0,
+                    "max": 32.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:13.502547Z",
+                    "avg": 32.0,
+                    "max": 32.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.535899Z",
+                    "avg": 32.0,
+                    "max": 32.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:15.582068Z",
+                    "avg": 32.0,
+                    "max": 32.0
+                }
+            ],
+            "THREADS_DAEMON": [
+                {
+                    "ts": "2026-11-13T19:50:16.034027Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:17.072315Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:18.122725Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:19.166013Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:20.209190Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:21.256205Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:22.285072Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:23.310131Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:24.334593Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:25.356492Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:26.420982Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:27.467763Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:28.508773Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:29.534449Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:30.562501Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:31.588258Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:32.615020Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:33.643801Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:34.668748Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:35.714134Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:36.781721Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:37.826765Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:38.866777Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:39.912998Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:40.959243Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:42.013262Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:43.062017Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:44.105767Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:45.154859Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:46.215671Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:47.307551Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:48.346673Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:49.391271Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:50.440947Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:51.477654Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:52.523766Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:53.551934Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:54.586317Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:55.631551Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:56.674198Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:57.767261Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:58.816444Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:50:59.856206Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:00.917388Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:01.968671Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:03.018750Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:04.060296Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:05.106464Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:06.154396Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:07.191664Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:08.274720Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:09.323563Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:10.363183Z",
+                    "avg": 25.0,
+                    "max": 25.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:11.407869Z",
+                    "avg": 26.0,
+                    "max": 26.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:12.449847Z",
+                    "avg": 26.0,
+                    "max": 26.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:13.502547Z",
+                    "avg": 26.0,
+                    "max": 26.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:14.535899Z",
+                    "avg": 26.0,
+                    "max": 26.0
+                },
+                {
+                    "ts": "2026-11-13T19:51:15.582068Z",
+                    "avg": 26.0,
+                    "max": 26.0
+                }
+            ]
+        }
+    },
+    "locks": {
+        "available": true,
+        "top": [
+            {
+                "type": "THREAD_PARK",
+                "className": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject",
+                "count": 151,
+                "totalMs": 179053.675,
+                "maxMs": 29999.152099999996,
+                "stackFrames": [
+                    {
+                        "c": "jdk.internal.misc.Unsafe",
+                        "m": "park",
+                        "d": "(ZJ)V",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.util.concurrent.locks.LockSupport",
+                        "m": "parkNanos",
+                        "d": "(Ljava/lang/Object;J)V",
+                        "l": 269
+                    },
+                    {
+                        "c": "java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject",
+                        "m": "awaitNanos",
+                        "d": "(J)J",
+                        "l": 1763
+                    },
+                    {
+                        "c": "java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue",
+                        "m": "take",
+                        "d": "()Ljava/util/concurrent/RunnableScheduledFuture;",
+                        "l": 1182
+                    },
+                    {
+                        "c": "java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue",
+                        "m": "take",
+                        "d": "()Ljava/lang/Object;",
+                        "l": 899
+                    }
+                ],
+                "appFrame": null
+            },
+            {
+                "type": "MONITOR_WAIT",
+                "className": "java.util.TaskQueue",
+                "count": 1,
+                "totalMs": 59993.422099999996,
+                "maxMs": 59993.422099999996,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Object",
+                        "m": "wait0",
+                        "d": "(J)V",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.Object",
+                        "m": "wait",
+                        "d": "(J)V",
+                        "l": 366
+                    },
+                    {
+                        "c": "java.util.TimerThread",
+                        "m": "mainLoop",
+                        "d": "()V",
+                        "l": 563
+                    },
+                    {
+                        "c": "java.util.TimerThread",
+                        "m": "run",
+                        "d": "()V",
+                        "l": 516
+                    }
+                ],
+                "appFrame": null
+            },
+            {
+                "type": "MONITOR_WAIT",
+                "className": "org.apache.kafka.clients.consumer.internals.ConsumerCoordinator",
+                "count": 559,
+                "totalMs": 59736.006699999976,
+                "maxMs": 154.97729999999999,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Object",
+                        "m": "wait0",
+                        "d": "(J)V",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.Object",
+                        "m": "wait",
+                        "d": "(J)V",
+                        "l": 366
+                    },
+                    {
+                        "c": "org.apache.kafka.clients.consumer.internals.AbstractCoordinator$HeartbeatThread",
+                        "m": "run",
+                        "d": "()V",
+                        "l": 1527
+                    }
+                ],
+                "appFrame": null
+            }
+        ]
+    },
+    "hotMethods": {
+        "available": true,
+        "totalSamples": 220,
+        "top": [
+            {
+                "method": "br.com.sascar.core.tacweb.bean.InformationTac.getListaComandoSemCompactacao()",
+                "samples": 15,
+                "percent": 6.818181818181818,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.InformationTac",
+                        "m": "getListaComandoSemCompactacao",
+                        "d": "()Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 39
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 15
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.VehicleService",
+                        "m": "process",
+                        "d": "(Lbr/com/sascar/core/tacweb/dto/VehicleDTO;)V",
+                        "l": 53
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.component.EventListener",
+                        "m": "consume",
+                        "d": "(Lorg/springframework/messaging/Message;)V",
+                        "l": 24
+                    },
+                    {
+                        "c": "java.lang.invoke.DirectMethodHandle$Holder",
+                        "m": "invokeVirtual",
+                        "d": "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V",
+                        "l": -1
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.bean.InformationTac",
+                    "m": "getListaComandoSemCompactacao",
+                    "d": "()Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                    "l": 39
+                }
+            },
+            {
+                "method": "java.util.Arrays.copyOfRange(byte[], int, int)",
+                "samples": 10,
+                "percent": 4.545454545454546,
+                "stackFrames": [
+                    {
+                        "c": "java.util.Arrays",
+                        "m": "copyOfRange",
+                        "d": "([BII)[B",
+                        "l": 3856
+                    },
+                    {
+                        "c": "java.lang.String",
+                        "m": "<init>",
+                        "d": "(Ljava/lang/AbstractStringBuilder;Ljava/lang/Void;)V",
+                        "l": 4775
+                    },
+                    {
+                        "c": "java.lang.String",
+                        "m": "<init>",
+                        "d": "(Ljava/lang/StringBuilder;)V",
+                        "l": 1496
+                    },
+                    {
+                        "c": "java.lang.StringBuilder",
+                        "m": "toString",
+                        "d": "()Ljava/lang/String;",
+                        "l": 475
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteString",
+                        "d": "(B)Ljava/lang/String;",
+                        "l": 24
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "converteString",
+                    "d": "(B)Ljava/lang/String;",
+                    "l": 24
+                }
+            },
+            {
+                "method": "java.lang.AbstractStringBuilder.append(String)",
+                "samples": 8,
+                "percent": 3.6363636363636362,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.AbstractStringBuilder",
+                        "m": "append",
+                        "d": "(Ljava/lang/String;)Ljava/lang/AbstractStringBuilder;",
+                        "l": 592
+                    },
+                    {
+                        "c": "java.lang.StringBuilder",
+                        "m": "append",
+                        "d": "(Ljava/lang/String;)Ljava/lang/StringBuilder;",
+                        "l": 179
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteString",
+                        "d": "(B)Ljava/lang/String;",
+                        "l": 23
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteInteger",
+                        "d": "(B)Ljava/lang/Integer;",
+                        "l": 13
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "getComando",
+                        "d": "(I)Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 284
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "converteString",
+                    "d": "(B)Ljava/lang/String;",
+                    "l": 23
+                }
+            },
+            {
+                "method": "java.lang.Integer.toUnsignedString0(int, int)",
+                "samples": 8,
+                "percent": 3.6363636363636362,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Integer",
+                        "m": "toUnsignedString0",
+                        "d": "(II)Ljava/lang/String;",
+                        "l": 368
+                    },
+                    {
+                        "c": "java.lang.Integer",
+                        "m": "toHexString",
+                        "d": "(I)Ljava/lang/String;",
+                        "l": 286
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteString",
+                        "d": "(B)Ljava/lang/String;",
+                        "l": 23
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "getComando",
+                        "d": "(I)Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 283
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 220
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "converteString",
+                    "d": "(B)Ljava/lang/String;",
+                    "l": 23
+                }
+            },
+            {
+                "method": "sun.security.provider.SHA.implCompress0(byte[], int)",
+                "samples": 8,
+                "percent": 3.6363636363636362,
+                "stackFrames": [
+                    {
+                        "c": "sun.security.provider.SHA",
+                        "m": "implCompress0",
+                        "d": "([BI)V",
+                        "l": 169
+                    },
+                    {
+                        "c": "sun.security.provider.SHA",
+                        "m": "implCompress",
+                        "d": "([BI)V",
+                        "l": 132
+                    },
+                    {
+                        "c": "sun.security.provider.DigestBase",
+                        "m": "engineUpdate",
+                        "d": "([BII)V",
+                        "l": 123
+                    },
+                    {
+                        "c": "sun.security.provider.DigestBase",
+                        "m": "engineUpdate",
+                        "d": "(B)V",
+                        "l": 101
+                    },
+                    {
+                        "c": "java.security.MessageDigest$Delegate",
+                        "m": "engineUpdate",
+                        "d": "(B)V",
+                        "l": 666
+                    }
+                ],
+                "appFrame": null
+            },
+            {
+                "method": "br.com.sascar.core.tacweb.comando.Comando.<init>()",
+                "samples": 7,
+                "percent": 3.1818181818181817,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Comando",
+                        "m": "<init>",
+                        "d": "()V",
+                        "l": 36
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.generico.Generico",
+                        "m": "<init>",
+                        "d": "()V",
+                        "l": 13
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.generico.GpsAbstractClass",
+                        "m": "<init>",
+                        "d": "()V",
+                        "l": 13
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.GPSView",
+                        "m": "<init>",
+                        "d": "()V",
+                        "l": 8
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.GPSView",
+                        "m": "getView",
+                        "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)Lbr/com/sascar/core/tacweb/comando/GPSView;",
+                        "l": 15
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.Comando",
+                    "m": "<init>",
+                    "d": "()V",
+                    "l": 36
+                }
+            },
+            {
+                "method": "java.lang.AbstractStringBuilder.<init>(int)",
+                "samples": 6,
+                "percent": 2.727272727272727,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.AbstractStringBuilder",
+                        "m": "<init>",
+                        "d": "(I)V",
+                        "l": 101
+                    },
+                    {
+                        "c": "java.lang.StringBuilder",
+                        "m": "<init>",
+                        "d": "()V",
+                        "l": 106
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteString",
+                        "d": "(B)Ljava/lang/String;",
+                        "l": 18
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteInteger",
+                        "d": "(B)Ljava/lang/Integer;",
+                        "l": 13
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.generico.GPSCompactado",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 31
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "converteString",
+                    "d": "(B)Ljava/lang/String;",
+                    "l": 18
+                }
+            },
+            {
+                "method": "sun.security.provider.DigestBase.engineUpdate(byte[], int, int)",
+                "samples": 6,
+                "percent": 2.727272727272727,
+                "stackFrames": [
+                    {
+                        "c": "sun.security.provider.DigestBase",
+                        "m": "engineUpdate",
+                        "d": "([BII)V",
+                        "l": 123
+                    },
+                    {
+                        "c": "sun.security.provider.DigestBase",
+                        "m": "engineUpdate",
+                        "d": "(B)V",
+                        "l": 101
+                    },
+                    {
+                        "c": "java.security.MessageDigest$Delegate",
+                        "m": "engineUpdate",
+                        "d": "(B)V",
+                        "l": 666
+                    },
+                    {
+                        "c": "java.security.MessageDigest",
+                        "m": "update",
+                        "d": "(B)V",
+                        "l": 343
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "getHashArquivo",
+                        "d": "([BLjava/lang/Integer;)Ljava/lang/String;",
+                        "l": 135
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "getHashArquivo",
+                    "d": "([BLjava/lang/Integer;)Ljava/lang/String;",
+                    "l": 135
+                }
+            },
+            {
+                "method": "br.com.sascar.core.tacweb.comando.GPSView.getView(GPS)",
+                "samples": 5,
+                "percent": 2.272727272727273,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.GPSView",
+                        "m": "getView",
+                        "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)Lbr/com/sascar/core/tacweb/comando/GPSView;",
+                        "l": 24
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Comando",
+                        "m": "setGps",
+                        "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)V",
+                        "l": 95
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 251
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.GPSView",
+                    "m": "getView",
+                    "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)Lbr/com/sascar/core/tacweb/comando/GPSView;",
+                    "l": 24
+                }
+            },
+            {
+                "method": "java.lang.Character.digit(int, int)",
+                "samples": 5,
+                "percent": 2.272727272727273,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Character",
+                        "m": "digit",
+                        "d": "(II)I",
+                        "l": 11189
+                    },
+                    {
+                        "c": "java.lang.Character",
+                        "m": "digit",
+                        "d": "(CI)I",
+                        "l": 11137
+                    },
+                    {
+                        "c": "java.lang.Integer",
+                        "m": "parseInt",
+                        "d": "(Ljava/lang/String;I)I",
+                        "l": 660
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteInteger",
+                        "d": "(B)Ljava/lang/Integer;",
+                        "l": 14
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "getComando",
+                        "d": "(I)Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 284
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "converteInteger",
+                    "d": "(B)Ljava/lang/Integer;",
+                    "l": 14
+                }
+            }
+        ]
+    },
+    "allocation": {
+        "available": true,
+        "rateBytesPerSec": 1829081015.7736063,
+        "top": [
+            {
+                "className": "java.lang.String",
+                "weightBytes": 103160939088,
+                "samples": 1646,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Integer",
+                        "m": "toUnsignedString0",
+                        "d": "(II)Ljava/lang/String;",
+                        "l": 369
+                    },
+                    {
+                        "c": "java.lang.Integer",
+                        "m": "toHexString",
+                        "d": "(I)Ljava/lang/String;",
+                        "l": 286
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteString",
+                        "d": "(B)Ljava/lang/String;",
+                        "l": 23
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "getComando",
+                        "d": "(I)Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 283
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 220
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "converteString",
+                    "d": "(B)Ljava/lang/String;",
+                    "l": 23
+                }
+            },
+            {
+                "className": "byte[]",
+                "weightBytes": 2731869928,
+                "samples": 3095,
+                "stackFrames": [
+                    {
+                        "c": "java.util.Arrays",
+                        "m": "copyOfRangeByte",
+                        "d": "([BII)[B",
+                        "l": 3863
+                    },
+                    {
+                        "c": "java.util.Arrays",
+                        "m": "copyOfRange",
+                        "d": "([BII)[B",
+                        "l": 3854
+                    },
+                    {
+                        "c": "java.lang.String",
+                        "m": "<init>",
+                        "d": "(Ljava/lang/AbstractStringBuilder;Ljava/lang/Void;)V",
+                        "l": 4775
+                    },
+                    {
+                        "c": "java.lang.String",
+                        "m": "<init>",
+                        "d": "(Ljava/lang/StringBuilder;)V",
+                        "l": 1496
+                    },
+                    {
+                        "c": "java.lang.StringBuilder",
+                        "m": "toString",
+                        "d": "()Ljava/lang/String;",
+                        "l": 475
+                    }
+                ],
+                "appFrame": null
+            },
+            {
+                "className": "java.math.BigDecimal",
+                "weightBytes": 433237680,
+                "samples": 832,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Normal",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 38
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 235
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.VehicleService",
+                        "m": "process",
+                        "d": "(Lbr/com/sascar/core/tacweb/dto/VehicleDTO;)V",
+                        "l": 53
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.Normal",
+                    "m": "processa",
+                    "d": "()V",
+                    "l": 38
+                }
+            },
+            {
+                "className": "java.lang.StringBuilder",
+                "weightBytes": 432064448,
+                "samples": 768,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteString",
+                        "d": "(B)Ljava/lang/String;",
+                        "l": 18
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                        "m": "converteInteger",
+                        "d": "(B)Ljava/lang/Integer;",
+                        "l": 13
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "getComando",
+                        "d": "(I)Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 284
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 220
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.util.HexaUtil",
+                    "m": "converteString",
+                    "d": "(B)Ljava/lang/String;",
+                    "l": 18
+                }
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.generico.GPS",
+                "weightBytes": 349702160,
+                "samples": 625,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 247
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.VehicleService",
+                        "m": "process",
+                        "d": "(Lbr/com/sascar/core/tacweb/dto/VehicleDTO;)V",
+                        "l": 53
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.component.EventListener",
+                        "m": "consume",
+                        "d": "(Lorg/springframework/messaging/Message;)V",
+                        "l": 24
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.bean.Tac",
+                    "m": "processaTac",
+                    "d": "()V",
+                    "l": 247
+                }
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.comando.GPSView",
+                "weightBytes": 334300760,
+                "samples": 611,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.GPSView",
+                        "m": "getView",
+                        "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)Lbr/com/sascar/core/tacweb/comando/GPSView;",
+                        "l": 15
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Comando",
+                        "m": "setGps",
+                        "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)V",
+                        "l": 95
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 251
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.GPSView",
+                    "m": "getView",
+                    "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)Lbr/com/sascar/core/tacweb/comando/GPSView;",
+                    "l": 15
+                }
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.comando.Normal",
+                "weightBytes": 284134336,
+                "samples": 362,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Normal",
+                        "m": "makeClone",
+                        "d": "()Lbr/com/sascar/core/tacweb/comando/Normal;",
+                        "l": 88
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Normal",
+                        "m": "makeClone",
+                        "d": "()Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 11
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 229
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.Normal",
+                    "m": "makeClone",
+                    "d": "()Lbr/com/sascar/core/tacweb/comando/Normal;",
+                    "l": 88
+                }
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.comando.MotoristaView",
+                "weightBytes": 270154704,
+                "samples": 413,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.MotoristaView",
+                        "m": "getView",
+                        "d": "(Lbr/com/sascar/core/tacweb/comando/Motorista;)Lbr/com/sascar/core/tacweb/comando/MotoristaView;",
+                        "l": 22
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Comando",
+                        "m": "setMotorista",
+                        "d": "(Lbr/com/sascar/core/tacweb/comando/Motorista;)V",
+                        "l": 55
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 239
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.MotoristaView",
+                    "m": "getView",
+                    "d": "(Lbr/com/sascar/core/tacweb/comando/Motorista;)Lbr/com/sascar/core/tacweb/comando/MotoristaView;",
+                    "l": 22
+                }
+            },
+            {
+                "className": "java.lang.Object[]",
+                "weightBytes": 175307000,
+                "samples": 110,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Comando",
+                        "m": "clone",
+                        "d": "(I)Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 68
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 226
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.VehicleService",
+                        "m": "process",
+                        "d": "(Lbr/com/sascar/core/tacweb/dto/VehicleDTO;)V",
+                        "l": 53
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.Comando",
+                    "m": "clone",
+                    "d": "(I)Lbr/com/sascar/core/tacweb/comando/Comando;",
+                    "l": 68
+                }
+            },
+            {
+                "className": "jdk.internal.math.DoubleToDecimal",
+                "weightBytes": 151843344,
+                "samples": 140,
+                "stackFrames": [
+                    {
+                        "c": "jdk.internal.math.DoubleToDecimal",
+                        "m": "toString",
+                        "d": "(D)Ljava/lang/String;",
+                        "l": 131
+                    },
+                    {
+                        "c": "java.lang.Double",
+                        "m": "toString",
+                        "d": "(D)Ljava/lang/String;",
+                        "l": 452
+                    },
+                    {
+                        "c": "java.math.BigDecimal",
+                        "m": "valueOf",
+                        "d": "(D)Ljava/math/BigDecimal;",
+                        "l": 1371
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.generico.GPS",
+                        "m": "<init>",
+                        "d": "()V",
+                        "l": 20
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 247
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.generico.GPS",
+                    "m": "<init>",
+                    "d": "()V",
+                    "l": 20
+                }
+            }
+        ]
+    },
+    "exceptions": {
+        "available": true,
+        "throwablesTotal": 37,
+        "top": [
+            {
+                "className": "java.lang.NoSuchMethodError",
+                "count": 1,
+                "sampleMessage": "'long java.lang.invoke.Invokers$Holder.invokeExact_MT(java.lang.Object, java.lang.Object)'",
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Error",
+                        "m": "<init>",
+                        "d": "(Ljava/lang/String;)V",
+                        "l": 68
+                    },
+                    {
+                        "c": "java.lang.LinkageError",
+                        "m": "<init>",
+                        "d": "(Ljava/lang/String;)V",
+                        "l": 55
+                    },
+                    {
+                        "c": "java.lang.IncompatibleClassChangeError",
+                        "m": "<init>",
+                        "d": "(Ljava/lang/String;)V",
+                        "l": 54
+                    },
+                    {
+                        "c": "java.lang.NoSuchMethodError",
+                        "m": "<init>",
+                        "d": "(Ljava/lang/String;)V",
+                        "l": 57
+                    },
+                    {
+                        "c": "java.lang.invoke.MethodHandleNatives",
+                        "m": "resolve",
+                        "d": "(Ljava/lang/invoke/MemberName;Ljava/lang/Class;IZ)Ljava/lang/invoke/MemberName;",
+                        "l": -1
+                    }
+                ],
+                "appFrame": null
+            }
+        ]
+    },
+    "io": {
+        "available": true,
+        "totals": {
+            "SOCKET_READ": {
+                "bytes": 9283,
+                "count": 1760,
+                "totalMs": 46501.81250000005
+            }
+        },
+        "top": [
+            {
+                "type": "SOCKET_READ",
+                "target": "MKDWTACDBSQL01:1433",
+                "bytes": 9283,
+                "count": 1760,
+                "totalMs": 46501.81250000005,
+                "maxMs": 275.6507
+            }
+        ]
+    },
+    "leakSuspects": {
+        "available": true,
+        "top": [
+            {
+                "className": "br.com.sascar.core.tacweb.comando.GPSView",
+                "samples": 13,
+                "maxAgeMs": 1841,
+                "maxArraySize": null,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.GPSView",
+                        "m": "getView",
+                        "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)Lbr/com/sascar/core/tacweb/comando/GPSView;",
+                        "l": 15
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Comando",
+                        "m": "setGps",
+                        "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)V",
+                        "l": 95
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 251
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.GPSView",
+                    "m": "getView",
+                    "d": "(Lbr/com/sascar/core/tacweb/generico/GPS;)Lbr/com/sascar/core/tacweb/comando/GPSView;",
+                    "l": 15
+                }
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.comando.Normal",
+                "samples": 8,
+                "maxAgeMs": 1838,
+                "maxArraySize": null,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Normal",
+                        "m": "makeClone",
+                        "d": "()Lbr/com/sascar/core/tacweb/comando/Normal;",
+                        "l": 88
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Normal",
+                        "m": "makeClone",
+                        "d": "()Lbr/com/sascar/core/tacweb/comando/Comando;",
+                        "l": 11
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 229
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.Normal",
+                    "m": "makeClone",
+                    "d": "()Lbr/com/sascar/core/tacweb/comando/Normal;",
+                    "l": 88
+                }
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.comando.MotoristaView",
+                "samples": 5,
+                "maxAgeMs": 1772,
+                "maxArraySize": null,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.MotoristaView",
+                        "m": "getView",
+                        "d": "(Lbr/com/sascar/core/tacweb/comando/Motorista;)Lbr/com/sascar/core/tacweb/comando/MotoristaView;",
+                        "l": 22
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.comando.Comando",
+                        "m": "setMotorista",
+                        "d": "(Lbr/com/sascar/core/tacweb/comando/Motorista;)V",
+                        "l": 55
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processaTac",
+                        "d": "()V",
+                        "l": 239
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 204
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.service.TacService",
+                        "m": "getTac",
+                        "d": "(Ljava/io/File;)Lbr/com/sascar/core/tacweb/dto/PositionDTO;",
+                        "l": 14
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.comando.MotoristaView",
+                    "m": "getView",
+                    "d": "(Lbr/com/sascar/core/tacweb/comando/Motorista;)Lbr/com/sascar/core/tacweb/comando/MotoristaView;",
+                    "l": 22
+                }
+            },
+            {
+                "className": "java.text.SimpleDateFormat",
+                "samples": 2,
+                "maxAgeMs": 1836,
+                "maxArraySize": null,
+                "stackFrames": [
+                    {
+                        "c": "br.com.sascar.core.tacweb.generico.Monitriip",
+                        "m": "<init>",
+                        "d": "(I)V",
+                        "l": 25
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.generico.MonitriipVtlip",
+                        "m": "<init>",
+                        "d": "(I)V",
+                        "l": 21
+                    },
+                    {
+                        "c": "java.lang.invoke.DirectMethodHandle$Holder",
+                        "m": "newInvokeSpecial",
+                        "d": "(Ljava/lang/Object;I)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.LambdaForm$MH+0x000001b70cd76800.1130578875",
+                        "m": "invoke",
+                        "d": "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.Invokers$Holder",
+                        "m": "invokeExact_MT",
+                        "d": "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": -1
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.generico.Monitriip",
+                    "m": "<init>",
+                    "d": "(I)V",
+                    "l": 25
+                }
+            },
+            {
+                "className": "jdk.internal.event.ThreadSleepEvent",
+                "samples": 2,
+                "maxAgeMs": 19605,
+                "maxArraySize": null,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Thread",
+                        "m": "beforeSleep",
+                        "d": "(J)Ljdk/internal/event/ThreadSleepEvent;",
+                        "l": 458
+                    },
+                    {
+                        "c": "java.lang.Thread",
+                        "m": "sleep",
+                        "d": "(J)V",
+                        "l": 504
+                    },
+                    {
+                        "c": "org.apache.catalina.core.StandardServer",
+                        "m": "await",
+                        "d": "()V",
+                        "l": 520
+                    },
+                    {
+                        "c": "org.springframework.boot.web.embedded.tomcat.TomcatWebServer$1",
+                        "m": "run",
+                        "d": "()V",
+                        "l": 219
+                    }
+                ],
+                "appFrame": null
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.comando.Compactacao",
+                "samples": 1,
+                "maxAgeMs": 1788,
+                "maxArraySize": null,
+                "stackFrames": [
+                    {
+                        "c": "jdk.internal.misc.Unsafe",
+                        "m": "allocateInstance",
+                        "d": "(Ljava/lang/Class;)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.DirectMethodHandle",
+                        "m": "allocateInstance",
+                        "d": "(Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": 501
+                    },
+                    {
+                        "c": "java.lang.invoke.LambdaForm$DMH+0x000001b70cd74000.1203347081",
+                        "m": "newInvokeSpecial",
+                        "d": "(Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.Invokers$Holder",
+                        "m": "invokeExact_MT",
+                        "d": "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "jdk.internal.reflect.DirectConstructorHandleAccessor",
+                        "m": "invokeImpl",
+                        "d": "([Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": 86
+                    }
+                ],
+                "appFrame": null
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.generico.GPSCompactado",
+                "samples": 1,
+                "maxAgeMs": 1812,
+                "maxArraySize": null,
+                "stackFrames": [
+                    {
+                        "c": "jdk.internal.misc.Unsafe",
+                        "m": "allocateInstance",
+                        "d": "(Ljava/lang/Class;)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.DirectMethodHandle",
+                        "m": "allocateInstance",
+                        "d": "(Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": 501
+                    },
+                    {
+                        "c": "java.lang.invoke.DirectMethodHandle$Holder",
+                        "m": "newInvokeSpecial",
+                        "d": "(Ljava/lang/Object;I)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.LambdaForm$MH+0x000001b70cd75000.1905530491",
+                        "m": "invoke",
+                        "d": "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.Invokers$Holder",
+                        "m": "invokeExact_MT",
+                        "d": "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": -1
+                    }
+                ],
+                "appFrame": null
+            },
+            {
+                "className": "br.com.sascar.core.tacweb.generico.PinoAdicional",
+                "samples": 1,
+                "maxAgeMs": 1860,
+                "maxArraySize": null,
+                "stackFrames": [
+                    {
+                        "c": "jdk.internal.misc.Unsafe",
+                        "m": "allocateInstance",
+                        "d": "(Ljava/lang/Class;)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.DirectMethodHandle",
+                        "m": "allocateInstance",
+                        "d": "(Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": 501
+                    },
+                    {
+                        "c": "java.lang.invoke.DirectMethodHandle$Holder",
+                        "m": "newInvokeSpecial",
+                        "d": "(Ljava/lang/Object;I)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.LambdaForm$MH+0x000001b70cd75400.1644306541",
+                        "m": "invoke",
+                        "d": "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.lang.invoke.Invokers$Holder",
+                        "m": "invokeExact_MT",
+                        "d": "(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+                        "l": -1
+                    }
+                ],
+                "appFrame": null
+            },
+            {
+                "className": "byte[]",
+                "samples": 1,
+                "maxAgeMs": 1863,
+                "maxArraySize": 461222,
+                "stackFrames": [
+                    {
+                        "c": "java.lang.Object",
+                        "m": "clone",
+                        "d": "()Ljava/lang/Object;",
+                        "l": -1
+                    },
+                    {
+                        "c": "java.util.Arrays",
+                        "m": "copyOf",
+                        "d": "([BI)[B",
+                        "l": 3539
+                    },
+                    {
+                        "c": "java.io.ByteArrayOutputStream",
+                        "m": "toByteArray",
+                        "d": "()[B",
+                        "l": 195
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "leArquivo",
+                        "d": "()V",
+                        "l": 324
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.bean.Tac",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 202
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.bean.Tac",
+                    "m": "leArquivo",
+                    "d": "()V",
+                    "l": 324
+                }
+            },
+            {
+                "className": "java.lang.Object[]",
+                "samples": 1,
+                "maxAgeMs": 1742,
+                "maxArraySize": 10,
+                "stackFrames": [
+                    {
+                        "c": "java.util.ArrayList",
+                        "m": "grow",
+                        "d": "(I)[Ljava/lang/Object;",
+                        "l": 239
+                    },
+                    {
+                        "c": "java.util.ArrayList",
+                        "m": "grow",
+                        "d": "()[Ljava/lang/Object;",
+                        "l": 244
+                    },
+                    {
+                        "c": "java.util.ArrayList",
+                        "m": "add",
+                        "d": "(Ljava/lang/Object;[Ljava/lang/Object;I)V",
+                        "l": 483
+                    },
+                    {
+                        "c": "java.util.ArrayList",
+                        "m": "add",
+                        "d": "(Ljava/lang/Object;)Z",
+                        "l": 496
+                    },
+                    {
+                        "c": "br.com.sascar.core.tacweb.generico.GPSCompactado",
+                        "m": "processa",
+                        "d": "()V",
+                        "l": 31
+                    }
+                ],
+                "appFrame": {
+                    "c": "br.com.sascar.core.tacweb.generico.GPSCompactado",
+                    "m": "processa",
+                    "d": "()V",
+                    "l": 31
+                }
+            }
+        ]
+    },
+    "threadCpu": {
+        "available": true,
+        "top": [
+            {
+                "threadName": "org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1",
+                "cpuAvg": 0.18927841456606984,
+                "cpuMax": 0.2240738831460476
+            },
+            {
+                "threadName": "C1 CompilerThread1",
+                "cpuAvg": 0.03172929584980011,
+                "cpuMax": 0.03172929584980011
+            },
+            {
+                "threadName": "JFR Periodic Tasks",
+                "cpuAvg": 0.026800733464187942,
+                "cpuMax": 0.03863505274057388
+            },
+            {
+                "threadName": "kafka-coordinator-heartbeat-thread | coreTacwebTacfileTriggerProcessorGroup",
+                "cpuAvg": 0.002463273808825761,
+                "cpuMax": 0.006033558864146471
+            },
+            {
+                "threadName": "C1 CompilerThread0",
+                "cpuAvg": 0.0011520154997318361,
+                "cpuMax": 0.0015083897160366178
+            },
+            {
+                "threadName": "JFR Recorder Thread",
+                "cpuAvg": 0.0010694795346353203,
+                "cpuMax": 0.0014938259264454246
+            },
+            {
+                "threadName": "JFR Recording Scheduler",
+                "cpuAvg": 0.0004538308712653816,
+                "cpuMax": 0.0004538308712653816
+            },
+            {
+                "threadName": "http-nio-8081-Poller",
+                "cpuAvg": 0.00034037313889712095,
+                "cpuMax": 0.00034037313889712095
+            },
+            {
+                "threadName": "Attach Listener",
+                "cpuAvg": 0.0001134577178163454,
+                "cpuMax": 0.0001134577178163454
+            },
+            {
+                "threadName": "Monitor Deflation Thread",
+                "cpuAvg": 0.0001134577178163454,
+                "cpuMax": 0.0001134577178163454
+            }
+        ]
+    },
+    "findings": [
+        {
+            "ruleId": "CompareCpu",
+            "topic": "processes",
+            "name": "Competing CPU Ratio Usage",
+            "severity": "WARNING",
+            "score": 80.08257134376346,
+            "summary": "An average CPU load of 43\u00a0% was caused by other processes for during 11/13/2026, 7:51:00.000 PM \u2013 7:51:13 PM.",
+            "explanation": "The application performance can be affected when the machine is under heavy load and there are other processes that use CPU or other resources on the same computer. To profile representatively or get higher throughput, shut down other resource intensive processes running on the machine."
+        },
+        {
+            "ruleId": "GcInvertedParallelism",
+            "topic": "garbage_collection",
+            "name": "Inverted Parallelism",
+            "severity": "WARNING",
+            "summary": "Inverted Parallelism detected 21 times out of 24 recorded events.",
+            "explanation": "There is evidence of inverted parallelism. With parallel (multi-threaded) collector events, the \"user\" + \"sys\" time should be approximately equal to the \"real\" (wall) time multiplied by the # of GC threads. For example, if there are 3 GC threads we would expect a parallel collection that takes 1 second of \"real\" time to take approximately 3 seconds of \"user\" + \"sys\" time. The parallelism is 3x. If the parallelism is 1x (\"user\" + \"sys\" = \"real\"), the parallel collection is not offering any efficiency over a serial (single-threaded) collection. When \"user\" + \"sys\" < \"real\", the parallelism is inverted. Inverted parallelism can be a sign of high i/o (e.g. disk or network access) or not enough CPU (e.g. GC threads competing with each other or other processes). Check for swapping and if the number of GC threads (-XX:ParallelGCThreads=) is appropriate for the number of cpu/cores and any processes sharing cpu."
+        },
+        {
+            "ruleId": "StackdepthSetting",
+            "topic": "jvm_information",
+            "name": "Stackdepth Setting",
+            "severity": "WARNING",
+            "summary": "Some stack traces were truncated in this recording.",
+            "explanation": "The Flight Recorder is configured with a maximum captured stack depth of 64. 14.1\u00a0% of all traces were larger than this option, and were therefore truncated. If more detailed traces are required, increase the ''-XX:FlightRecorderOptions=stackdepth='' value.\nEvents of the following types have truncated stack traces: Method Profiling Sample (1.36\u00a0% truncated traces),Method Profiling Sample Native (20\u00a0% truncated traces),Object Allocation Sample (0.531\u00a0% truncated traces),Socket Read (100\u00a0% truncated traces)"
+        },
+        {
+            "ruleId": "Allocations.thread",
+            "topic": "java_application",
+            "name": "Threads Allocating",
+            "severity": "INFO",
+            "score": 73.98058253223353,
+            "summary": "The most allocations were likely done by thread ''org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1'' at:",
+            "explanation": "Many allocations performed by the same thread might indicate a problem in a multi-threaded program. Look at the stack traces for the thread with the highest allocation rate. See if the allocation rate can be brought down, or balanced among the active threads."
+        },
+        {
+            "ruleId": "Allocations.class",
+            "topic": "heap",
+            "name": "Allocated Classes",
+            "severity": "INFO",
+            "score": 70.82009086198087,
+            "summary": "The most allocated type is likely ''java.lang.String'', most commonly allocated by: String java.lang.Integer.toUnsignedString0(int, int),String java.lang.Integer.toHexString(int),String br.com.sascar.core.tacweb.util.HexaUtil.converteString(byte)",
+            "explanation": "Frequently allocated types are good places to start when trying to reduce garbage collections. Look at where the most common types are being allocated to see if many instances are created along the same call path. Try to reduce the number of instances created by invoking the most commonly taken paths less."
+        },
+        {
+            "ruleId": "ManyRunningProcesses",
+            "topic": "processes",
+            "name": "Competing Processes",
+            "severity": "INFO",
+            "score": 42.94987839261433,
+            "summary": "316 processes were running while this Flight Recording was made.",
+            "explanation": "At 11/13/26, 7:51:15.986 PM, a total of 316 other processes were running on the host machine that this Flight Recording was made on.",
+            "solution": "If this is a server environment, it may be good to only run other critical processes on that machine."
+        },
+        {
+            "ruleId": "DuplicateFlags",
+            "topic": "jvm_information",
+            "name": "Duplicated Flags",
+            "severity": "INFO",
+            "summary": "1 duplicated JVM flags found.",
+            "explanation": "Duplicated JVM flags may be caused by multiple layers of scripts used when launching the application. Having duplicate flags is dangerous as changing one of the flags in one of the scripts may not have the intended effect. This can be especially dangerous for security related system properties. The following flags were duplicated: -XX:TieredStopAtLevel=4,-XX:TieredStopAtLevel=1",
+            "solution": "Try to find all the places where the flag is defined and keep only one."
+        },
+        {
+            "ruleId": "GcOptions",
+            "topic": "jvm_information",
+            "name": "GC Setup",
+            "severity": "INFO",
+            "summary": "The JVM ran with a parallel GC but with only one GC thread.",
+            "explanation": "The JVM ran with a parallel GC but with only one GC thread. This is not optimal. To change number of GC threads, use the command line flag [-XX:ParallelGCThreads=X](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/parallel.html). When run without the '-XX:ParallelGCThreads' flag, the JVM will use a suitable number of GC threads automatically."
+        },
+        {
+            "ruleId": "SocketRead",
+            "topic": "socket_io",
+            "name": "Socket Read Peak Duration",
+            "severity": "INFO",
+            "summary": "There are long socket read pauses in this recording (the longest is 275.651\u00a0ms).",
+            "explanation": "The longest recorded socket read took 275.651\u00a0ms to read 5\u00a0B from the host at 10.1.101.239. Average time of recorded IO: 26.421\u00a0ms. Total time of recorded IO: 46.502\u00a0s. Total time of recorded IO for the host 10.1.101.239: 46.502\u00a0s. Note that there are some socket read patterns with high duration reads that we consider to be normal and are therefore excluded. Such patterns include JMX RMI communication and MQ series."
+        },
+        {
+            "ruleId": "HighGc",
+            "topic": "heap",
+            "name": "GC Pressure",
+            "severity": "OK",
+            "score": 15.033860931824506,
+            "summary": "The JVM was paused for 100\u00a0% during 11/13/2026, 7:50:46.295.000 PM \u2013 .366",
+            "explanation": "The time spent performing garbage collection may be reduced by increasing the heap size or by trying to reduce allocation.\nTo improve rule accuracy and/or get more details for further investigation, it is recommended to enable the following event types: 'Allocation in new TLAB', 'Allocation outside TLAB'."
+        },
+        {
+            "ruleId": "ApplicationHalts",
+            "topic": "java_application",
+            "name": "Application Halts",
+            "severity": "OK",
+            "score": 5.889822766666667,
+            "summary": "Application efficiency was not highly affected by halts.",
+            "explanation": "The highest ratio of application halts to execution time was 1.18\u00a0% during 11/13/2026, 7:50:15.000 PM \u2013 7:51:15 PM. 0.613\u00a0% of the halts were for reasons other than GC. The halts ratio for the entire recording was 1.18\u00a0%. 0.804\u00a0% of the total halts were for reasons other than GC."
+        },
+        {
+            "ruleId": "GcPauseRatio",
+            "topic": "garbage_collection",
+            "name": "GC Pauses",
+            "severity": "OK",
+            "score": 5.853731466666666,
+            "summary": "Application efficiency was not highly affected by GC pauses.",
+            "explanation": "The highest ratio between garbage collection pauses and execution time was 1.17\u00a0% during 11/13/2026, 7:50:15.000 PM \u2013 7:51:15 PM. The garbage collection pause ratio of the entire recording was 1.17\u00a0%.",
+            "solution": "Pause times may be reduced by increasing the heap size or by trying to reduce allocation."
+        },
+        {
+            "ruleId": "LongGcPause",
+            "topic": "garbage_collection",
+            "name": "GC Pause Peak Duration",
+            "severity": "OK",
+            "score": 2.12725794424235,
+            "summary": "The longest GC pause was 70.754\u00a0ms."
+        },
+        {
+            "ruleId": "VMOperations",
+            "topic": "vm_operations",
+            "name": "VMOperation Peak Duration",
+            "severity": "OK",
+            "score": 1.7703999999999998,
+            "summary": "No excessively long VM operations were found in this recording (the longest was 70.816\u00a0ms)."
+        },
+        {
+            "ruleId": "IncreasingMetaSpaceLiveSet",
+            "topic": "garbage_collection",
+            "name": "Metaspace Live Set Trend",
+            "severity": "OK",
+            "score": 1.424560020717014,
+            "summary": "The class data does not seem to increase during the recording."
+        },
+        {
+            "ruleId": "MethodProfiling",
+            "topic": "method_profiling",
+            "name": "Method Profiling",
+            "severity": "OK",
+            "score": 0.8659066452094085,
+            "summary": "No methods where optimization would be particularly efficient could be detected."
+        },
+        {
+            "ruleId": "Errors",
+            "topic": "exceptions",
+            "name": "Thrown Errors",
+            "severity": "OK",
+            "score": 0.8333333333333334,
+            "summary": "The program generated an average of 1 errors per minute during 11/13/2026, 7:51:11.000 PM \u2013 7:52:11 PM.",
+            "explanation": "1 errors were thrown in total. The most common error was ''java.lang.NoSuchMethodError'', which was thrown 1 times. Investigate the thrown errors to see if they can be avoided. Errors indicate that something went wrong with the code execution and should never be used for flow control."
+        },
+        {
+            "ruleId": "HighJvmCpu",
+            "topic": "java_application",
+            "name": "High JVM CPU Load",
+            "severity": "OK",
+            "score": 0.6348217042306412,
+            "summary": "The JVM does not seem to cause a lot of CPU load."
+        },
+        {
+            "ruleId": "IncreasingLiveSet",
+            "topic": "memoryleak",
+            "name": "Heap Live Set Trend",
+            "severity": "OK",
+            "score": 0.550987675987676,
+            "summary": "The live set on the heap seems to increase with a speed of about 27.9\u00a0KiB per second during the recording.There is no particular class that seems to be leaking more than any other.",
+            "explanation": "Perform a dump with the 'Trace Paths to GC Roots' option enabled to enable a more detailed analysis of the potential memory leak."
+        },
+        {
+            "ruleId": "PrimitiveToObjectConversion",
+            "topic": "heap",
+            "name": "Primitive To Object Conversion",
+            "severity": "OK",
+            "score": 0.21097786869102897,
+            "summary": "0.169\u00a0% of the total allocation (102\u00a0GiB) is caused by conversion from primitive types to object types. The most common object type that primitives are converted into is ''java.lang.Long''.",
+            "explanation": "The most common object type that primitives are converted into is ''java.lang.Long'', which causes 72.6\u00a0MiB to be allocated. The most common call site is ''long br.com.sascar.core.tacweb.util.HexaUtil.getCoordenadasLong(byte[], int):103''.\nConversion from primitives to the corresponding object types can either be done explicitly, or be caused by autoboxing. If a considerable amount of the total allocation is caused by such conversions, consider changing the application source code to avoid this behavior. Look at the allocation stack traces to see which parts of the code to change. This rule finds the calls to the valueOf method for any of the eight object types that have primitive counterparts."
+        },
+        {
+            "ruleId": "Exceptions",
+            "topic": "exceptions",
+            "name": "Thrown Exceptions",
+            "severity": "OK",
+            "score": 0.15794191205083696,
+            "summary": "The program generated 31.6 exceptions per second during 11/13/2026, 7:51:10.000 PM \u2013 7:51:11 PM.",
+            "explanation": "Throwing exceptions is more expensive than normal code execution, which means that they should only be used for exceptional situations. Investigate the thrown exceptions to see if any of them can be avoided with a non-exceptional control flow."
+        },
+        {
+            "ruleId": "ContextSwitch",
+            "topic": "lock_instances",
+            "name": "Context Switches",
+            "severity": "OK",
+            "score": 0.0,
+            "summary": "The program did not context switch excessively during the recording."
+        },
+        {
+            "ruleId": "BufferLost",
+            "topic": "recording",
+            "name": "Lost Flight Recorder Buffers",
+            "severity": "OK",
+            "summary": "No Flight Recorder buffers were lost during the recording."
+        },
+        {
+            "ruleId": "BytecodeVerification",
+            "topic": "jvm_information",
+            "name": "Bytecode Verification",
+            "severity": "OK",
+            "summary": "The application ran with bytecode verification enabled."
+        },
+        {
+            "ruleId": "CompressedOops",
+            "topic": "gc_configuration",
+            "name": "Compressed Oops",
+            "severity": "OK",
+            "summary": "The settings for Compressed Oops were OK."
+        },
+        {
+            "ruleId": "DebugNonSafepoints",
+            "topic": "jvm_information",
+            "name": "DebugNonSafepoints",
+            "severity": "OK",
+            "summary": "DebugNonSafepoints was implicitly enabled in the JVM version used to create this recording."
+        },
+        {
+            "ruleId": "DiscouragedVmOptions",
+            "topic": "jvm_information",
+            "name": "Discouraged VM Options",
+            "severity": "OK",
+            "summary": "No problems were found with the VM options."
+        },
+        {
+            "ruleId": "DynamicAgents",
+            "topic": "agent_information",
+            "name": "Dynamically Loaded Agents",
+            "severity": "OK",
+            "summary": "An acceptable number of java and native agents (0 total) were dynamically loaded!"
+        },
+        {
+            "ruleId": "FewSampledThreads",
+            "topic": "java_application",
+            "name": "Parallel Threads",
+            "severity": "OK",
+            "summary": "The application seems to be idle. JVM CPU usage was 2.41\u00a0% during 11/13/2026, 7:50:41.000 PM \u2013 7:50:51 PM.",
+            "explanation": "This may be caused by application latencies, see information from other rules, or it could be that the application is not doing anything."
+        },
+        {
+            "ruleId": "FileRead",
+            "topic": "file_io",
+            "name": "File Read Peak Duration",
+            "severity": "OK",
+            "summary": "There are no file read events in this recording."
+        },
+        {
+            "ruleId": "FileWrite",
+            "topic": "file_io",
+            "name": "File Write Peak Duration",
+            "severity": "OK",
+            "summary": "There are no file write events in this recording."
+        },
+        {
+            "ruleId": "FlightRecordingSupport",
+            "topic": "jvm_information",
+            "name": "Flight Recording Support",
+            "severity": "OK",
+            "summary": "The JVM version used for this recording has full Flight Recorder support."
+        },
+        {
+            "ruleId": "FullGc",
+            "topic": "garbage_collection",
+            "name": "G1/CMS Full Collection",
+            "severity": "OK",
+            "summary": "No Stop-the-World, Full GC events detected."
+        },
+        {
+            "ruleId": "GarbageCollectionInfoRule",
+            "topic": "garbage_collection",
+            "name": "Garbage Collection Info",
+            "severity": "OK"
+        },
+        {
+            "ruleId": "GcLocker",
+            "topic": "garbage_collection",
+            "name": "GCs Caused by GC Locker",
+            "severity": "OK",
+            "summary": "No GCs were affected by the GC Locker."
+        },
+        {
+            "ruleId": "GcPauseTargetRule",
+            "topic": "garbage_collection",
+            "name": "G1 MMU Information",
+            "severity": "OK",
+            "summary": "All GCs completed before the GC pause target time of 200\u00a0ms."
+        },
+        {
+            "ruleId": "GcStall",
+            "topic": "garbage_collection",
+            "name": "GC Stall",
+            "severity": "OK",
+            "summary": "No indications that the garbage collector could not keep up with the workload were detected."
+        },
+        {
+            "ruleId": "HeapDump",
+            "topic": "heap",
+            "name": "Heap Dump",
+            "severity": "OK",
+            "summary": "No heap dump performed."
+        },
+        {
+            "ruleId": "HeapInspectionGc",
+            "topic": "garbage_collection",
+            "name": "GCs Caused by Heap Inspection",
+            "severity": "OK",
+            "summary": "The JVM did not perform any heap inspection GCs.",
+            "explanation": "This is good since they usually take a lot of time."
+        },
+        {
+            "ruleId": "JfrPeriodicEventsFix",
+            "topic": "jvm_information",
+            "name": "JFR Periodic Events Fix",
+            "severity": "OK",
+            "summary": "The version of Java you are running is not affected by a performance issue related to periodic events."
+        },
+        {
+            "ruleId": "LowOnPhysicalMemory",
+            "topic": "heap",
+            "name": "Free Physical Memory",
+            "severity": "OK",
+            "summary": "The system did not run low on physical memory during this recording."
+        },
+        {
+            "ruleId": "ManagementAgent",
+            "topic": "jvm_information",
+            "name": "Discouraged Management Agent Settings",
+            "severity": "OK",
+            "summary": "No problems were found with the management agent settings."
+        },
+        {
+            "ruleId": "MetaspaceOom",
+            "topic": "garbage_collection",
+            "name": "Metaspace Out of Memory",
+            "severity": "OK",
+            "summary": "The metaspace was not exhausted during this recording."
+        },
+        {
+            "ruleId": "MultipleAgents",
+            "topic": "agent_information",
+            "name": "Multiple Agents",
+            "severity": "OK",
+            "summary": "An acceptable number of java and native agents (0 total) were loaded!"
+        },
+        {
+            "ruleId": "Options",
+            "topic": "jvm_information",
+            "name": "Command Line Options Check",
+            "severity": "OK",
+            "summary": "No undocumented, deprecated or non-recommended option flags were detected."
+        },
+        {
+            "ruleId": "OverAggressiveRecordingSetting",
+            "topic": "recording",
+            "name": "Discouraged Recording Settings",
+            "severity": "OK",
+            "summary": "No problems were found with the recording settings."
+        },
+        {
+            "ruleId": "PID1Rule",
+            "topic": "jvm_information",
+            "name": "PID-1 Rule",
+            "severity": "OK",
+            "summary": "PID1Rule_TEXT_OK"
+        },
+        {
+            "ruleId": "PasswordsInArguments",
+            "topic": "jvm_information",
+            "name": "Passwords in Java Arguments",
+            "severity": "OK",
+            "summary": "The recording does not seem to contain passwords in the application arguments."
+        },
+        {
+            "ruleId": "PasswordsInEnvironment",
+            "topic": "environment_variables",
+            "name": "Passwords in Environment Variables",
+            "severity": "OK",
+            "summary": "The recording does not seem to contain passwords in the environment variables."
+        },
+        {
+            "ruleId": "PasswordsInSystemProperties",
+            "topic": "system_properties",
+            "name": "Passwords in System Properties",
+            "severity": "OK",
+            "summary": "The recording does not seem to contain passwords in the system properties."
+        },
+        {
+            "ruleId": "SystemGc",
+            "topic": "garbage_collection",
+            "name": "GCs Caused by System.gc()",
+            "severity": "OK",
+            "summary": "No garbage collections were caused by System.gc()."
+        },
+        {
+            "ruleId": "biasedLockingRevocationPause",
+            "topic": "vm_operations",
+            "name": "Biased Locking Revocation Pauses",
+            "severity": "OK",
+            "summary": "No revocation of biased locks found."
+        }
+    ]
+}

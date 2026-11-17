@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Identidade visual — JMC AI Analyzer</title>
+<style>
+  :root {
+    --bg: #F7F9FA; --surface: #FFFFFF; --border: #DDE5E8;
+    --text: #14232A; --text-muted: #4E626B;
+    --brand: #0B5563; --brand-strong: #073B45; --brand-soft: #E3F1F4; --accent: #5CC4D6;
+    --prio-alta: #B42318; --prio-alta-soft: #FDECEA;
+    --prio-media: #9A5B00; --prio-media-soft: #FFF4E0;
+    --prio-baixa: #3E5C68; --prio-baixa-soft: #EAF0F2;
+    --health-ok: #1E7A3D; --health-atencao: #9A5B00; --health-critico: #B42318;
+    --code-bg: #EEF3F5;
+    --font: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  }
+  .dark {
+    --bg: #0F1A1D; --surface: #16252A; --border: #27393F;
+    --text: #E6EEF0; --text-muted: #9DB2BA;
+    --brand: #5CC4D6; --brand-strong: #8FDCE8; --brand-soft: #123A42; --accent: #5CC4D6;
+    --prio-alta: #FF8A7A; --prio-alta-soft: #3A1C19;
+    --prio-media: #F5B94E; --prio-media-soft: #352813;
+    --prio-baixa: #9FB8C2; --prio-baixa-soft: #1F2F35;
+    --health-ok: #6FD08C; --health-atencao: #F5B94E; --health-critico: #FF8A7A;
+    --code-bg: #0F1A1D;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: #E9EEF0; color: #14232A; }
+  main { max-width: 1200px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 28px; margin: 0 0 4px; }
+  h2 { font-size: 18px; margin: 40px 0 12px; }
+  p.lead { color: #4E626B; margin: 0 0 24px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .theme { background: var(--bg); color: var(--text); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
+  .theme h3 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+  .sw { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: var(--surface); font-size: 12px; }
+  .sw div { height: 44px; }
+  .sw span { display: block; padding: 6px 8px; color: var(--text-muted); }
+  .sw b { color: var(--text); display: block; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-left: 6px solid var(--c); border-radius: 12px; padding: 16px; margin-top: 12px; }
+  .card .head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .chip { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--soft); color: var(--c); letter-spacing: .04em; }
+  .cat { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+  .title { font-size: 17px; font-weight: 700; margin: 8px 0 4px; }
+  .evidence { color: var(--text-muted); font-size: 14px; margin: 0 0 10px; }
+  .where { font-family: var(--mono); font-size: 13px; background: var(--code-bg); padding: 6px 10px; border-radius: 8px; display: inline-block; }
+  .where em { font-style: normal; color: var(--text-muted); }
+  .action { margin-top: 10px; font-size: 15px; display: flex; gap: 8px; }
+  .action::before { content: "➜"; color: var(--brand); font-weight: 700; }
+  .more { margin-top: 8px; font-size: 13px; color: var(--brand); font-weight: 600; }
+  .header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .health { display: flex; align-items: center; gap: 12px; }
+  .ring { --p: 8; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+          background: conic-gradient(var(--hc) calc(var(--p) * 1%), var(--border) 0); }
+  .ring b { width: 50px; height: 50px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-size: 18px; }
+  .health small { display: block; color: var(--text-muted); font-size: 12px; }
+  .health strong { color: var(--hc); }
+  .cmd { font-family: var(--mono); font-size: 12px; background: var(--code-bg); border: 1px dashed var(--border); padding: 8px 10px; border-radius: 8px; overflow-wrap: anywhere; }
+  .cov { display: flex; gap: 8px; font-size: 14px; margin: 6px 0; }
+  .cov .i { width: 18px; text-align: center; font-weight: 700; }
+  .type { display: grid; gap: 6px; }
+  .type .display { font-size: 28px; font-weight: 800; letter-spacing: -.01em; }
+  .type .h { font-size: 18px; font-weight: 700; }
+  .type .body { font-size: 15px; }
+  .type .code { font-family: var(--mono); font-size: 13px; }
+  .logo-row { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
+  .raw { font-family: var(--mono); font-size: 12px; background: #1E1E1E; color: #D4D4D4; padding: 12px; border-radius: 10px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<main>
+  <h1>JMC AI Analyzer — identidade visual</h1>
+  <p class="lead">Direção “diagnóstico clínico”: base calma, azul-petróleo como marca e o semáforo reservado para prioridade e saúde.</p>
+
+  <h2>Logo</h2>
+  <div class="row">
+    <div class="theme"><h3>Claro</h3>
+      <div class="logo-row">
+        <svg viewBox="0 0 300 64" width="300" height="64" role="img" aria-label="JMC AI Analyzer"><rect width="64" height="64" rx="14" fill="#0B5563"/><path d="M10 36 H22 L26 26 L32 44 L37 20 L42 36 H48" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="52" cy="36" r="4" fill="#5CC4D6"/><text x="80" y="31" font-family="Inter, Segoe UI, Roboto, Arial, sans-serif" font-size="22" font-weight="700" fill="#14232A">JMC AI Analyzer</text><text x="80" y="52" font-family="Inter, Segoe UI, Roboto, Arial, sans-serif" font-size="13" font-weight="500" fill="#4E626B">diagnóstico de gravações JFR</text></svg>
+      </div>
+    </div>
+    <div class="theme dark"><h3>Escuro</h3>
+      <div class="logo-row">
+        <svg viewBox="0 0 300 64" width="300" height="64" role="img" aria-label="JMC AI Analyzer"><rect width="64" height="64" rx="14" fill="#0B5563"/><path d="M10 36 H22 L26 26 L32 44 L37 20 L42 36 H48" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="52" cy="36" r="4" fill="#5CC4D6"/><text x="80" y="31" font-family="Inter, Segoe UI, Roboto, Arial, sans-serif" font-size="22" font-weight="700" fill="#E6EEF0">JMC AI Analyzer</text><text x="80" y="52" font-family="Inter, Segoe UI, Roboto, Arial, sans-serif" font-size="13" font-weight="500" fill="#9DB2BA">diagnóstico de gravações JFR</text></svg>
+      </div>
+    </div>
+  </div>
+
+  <h2>Paleta</h2>
+  <div class="row">
+    <div class="theme"><h3>Claro</h3>
+      <div class="swatches">
+        <div class="sw"><div style="background:var(--brand)"></div><span><b>Marca</b>#0B5563</span></div>
+        <div class="sw"><div style="background:var(--accent)"></div><span><b>Acento</b>#5CC4D6</span></div>
+        <div class="sw"><div style="background:var(--text)"></div><span><b>Texto</b>#14232A</span></div>
+        <div class="sw"><div style="background:var(--bg)"></div><span><b>Fundo</b>#F7F9FA</span></div>
+        <div class="sw"><div style="background:var(--prio-alta)"></div><span><b>ALTA · crítico</b>#B42318</span></div>
+        <div class="sw"><div style="background:var(--prio-media)"></div><span><b>MÉDIA · atenção</b>#9A5B00</span></div>
+        <div class="sw"><div style="background:var(--prio-baixa)"></div><span><b>BAIXA</b>#3E5C68</span></div>
+        <div class="sw"><div style="background:var(--health-ok)"></div><span><b>OK</b>#1E7A3D</span></div>
+      </div>
+    </div>
+    <div class="theme dark"><h3>Escuro</h3>
+      <div class="swatches">
+        <div class="sw"><div style="background:var(--brand)"></div><span><b>Marca</b>#5CC4D6</span></div>
+        <div class="sw"><div style="background:#0B5563"></div><span><b>Marca (logo)</b>#0B5563</span></div>
+        <div class="sw"><div style="background:var(--text)"></div><span><b>Texto</b>#E6EEF0</span></div>
+        <div class="sw"><div style="background:var(--bg)"></div><span><b>Fundo</b>#0F1A1D</span></div>
+        <div class="sw"><div style="background:var(--prio-alta)"></div><span><b>ALTA · crítico</b>#FF8A7A</span></div>
+        <div class="sw"><div style="background:var(--prio-media)"></div><span><b>MÉDIA · atenção</b>#F5B94E</span></div>
+        <div class="sw"><div style="background:var(--prio-baixa)"></div><span><b>BAIXA</b>#9FB8C2</span></div>
+        <div class="sw"><div style="background:var(--health-ok)"></div><span><b>OK</b>#6FD08C</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Tipografia</h2>
+  <div class="theme">
+    <div class="type">
+      <div class="display">O que arrumar primeiro</div>
+      <div class="h">Taxa de alocação alta</div>
+      <div class="body">1,7 GB/s de alocação; o tipo mais alocado é java.lang.String. Interface em Inter.</div>
+      <div class="code">br.com.empresa.util.HexaUtil.converteString:23 — código em JetBrains Mono</div>
+    </div>
+  </div>
+
+  <h2>Antes e depois</h2>
+  <div class="compare">
+    <div>
+      <div class="raw">[INFO score=73.98] Allocations.thread | The most allocations were likely done by thread ''org.springframework.kafka.KafkaListenerEndpointContainer#0-0-C-1'' at:
+[WARNING score=80.08] CompareCpu | An average CPU load of 43 % was caused by other processes for during 11/13/2026, 7:51:00.000 PM – 7:51:13 PM.
+[INFO] DuplicateFlags | 1 duplicated JVM flags found.</div>
+      <p class="lead" style="margin-top:8px">Saída do JMC: correta, mas exige interpretação.</p>
+    </div>
+    <div class="theme">
+      <div class="header">
+        <div><div class="cat">app-1.jfr · billing-service 1.4.2</div><div class="title" style="margin:2px 0">O que arrumar (8)</div></div>
+        <div class="health" style="--hc:var(--health-critico)"><div class="ring" style="--p:8"><b>8</b></div><div><strong>crítico</strong><small>nota de saúde</small></div></div>
+      </div>
+      <div class="card" style="--c:var(--prio-alta);--soft:var(--prio-alta-soft)">
+        <div class="head"><span class="chip">▲ ALTA</span><span class="cat">Ambiente</span></div>
+        <div class="title">Outros processos consumindo CPU</div>
+        <p class="evidence">43% da CPU da máquina foi usada por outros processos durante a gravação.</p>
+        <div class="action">Grave num ambiente isolado ou limite os outros processos.</div>
+        <div class="more">ver dados de CPU ↓</div>
+      </div>
+      <div class="card" style="--c:var(--prio-media);--soft:var(--prio-media-soft)">
+        <div class="head"><span class="chip">■ MÉDIA</span><span class="cat">Memória</span></div>
+        <div class="title">Taxa de alocação alta</div>
+        <p class="evidence">1,7 GB/s; o tipo mais alocado é <code>java.lang.String</code>.</p>
+        <span class="where">📍 <em>seu código:</em> HexaUtil.converteString:23</span>
+        <div class="action">Reduza alocações temporárias nesse ponto (reuso de buffers, menos conversões para String).</div>
+        <div class="more">ver pilha ▸ · ver alocação ↓</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Tema escuro</h2>
+  <div class="theme dark">
+    <div class="card" style="--c:var(--prio-media);--soft:var(--prio-media-soft)">
+      <div class="head"><span class="chip">■ MÉDIA</span><span class="cat">Configuração da JVM</span></div>
+      <div class="title">Flag da JVM limita o compilador ao C1</div>
+      <p class="evidence">-XX:TieredStopAtLevel=1 está ativo (aparece 2 vezes; vale a última).</p>
+      <div class="action">Remova -XX:TieredStopAtLevel; em produção, não use a flag.</div>
+    </div>
+    <div class="card" style="--c:var(--prio-baixa);--soft:var(--prio-baixa-soft)">
+      <div class="head"><span class="chip">● BAIXA</span><span class="cat">Gravação</span></div>
+      <div class="title">Gravação com dados incompletos</div>
+      <div class="cov"><span class="i" style="color:var(--prio-alta)">✗</span> EXCEPTIONS — jdk.JavaExceptionThrow desabilitado</div>
+      <div class="cov"><span class="i" style="color:var(--prio-media)">◐</span> HOT_METHODS — 220 amostras em 60 s</div>
+      <div class="cmd">$ -XX:StartFlightRecording=settings=profile,duration=10m,filename=app.jfr,jdk.JavaExceptionThrow#enabled=true</div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

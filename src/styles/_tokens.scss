@@ -1,0 +1,69 @@
+// Tokens da identidade "diagnóstico clínico" (jmc-ai-analyzer-web/v0.1.0/09 Identidade visual.md).
+// Todos os pares de texto têm contraste ≥ 4,5:1 sobre --surface.
+:root {
+  --brand: #0b5563;
+  --brand-strong: #073b45;
+  --brand-soft: #e3f1f4;
+  --accent: #5cc4d6;
+  --text: #14232a;
+  --text-muted: #4e626b;
+  --bg: #f7f9fa;
+  --surface: #ffffff;
+  --border: #dde5e8;
+  --code-bg: #eef3f5;
+
+  --prio-alta: #b42318;
+  --prio-alta-soft: #fdecea;
+  --prio-media: #9a5b00;
+  --prio-media-soft: #fff4e0;
+  --prio-baixa: #3e5c68;
+  --prio-baixa-soft: #eaf0f2;
+  --health-critico: #b42318;
+  --health-atencao: #9a5b00;
+  --health-ok: #1e7a3d;
+  --coverage-ok: var(--health-ok);
+  --coverage-insuficiente: var(--health-atencao);
+  --coverage-ausente: var(--health-critico);
+
+  --series-1: #0b5563;
+  --series-2: #7a5aa6;
+  --series-3: #2f7ec1;
+  --series-4: #a0558d;
+  --series-5: #4c7a2e;
+  --series-6: #8c6d3f;
+
+  --font: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  --mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+  --radius: 12px;
+  --space: 8px;
+}
+
+:root.theme-dark {
+  --brand: #5cc4d6;
+  --brand-strong: #8fdce8;
+  --brand-soft: #123a42;
+  --accent: #5cc4d6;
+  --text: #e6eef0;
+  --text-muted: #9db2ba;
+  --bg: #0f1a1d;
+  --surface: #16252a;
+  --border: #27393f;
+  --code-bg: #0f1a1d;
+
+  --prio-alta: #ff8a7a;
+  --prio-alta-soft: #3a1c19;
+  --prio-media: #f5b94e;
+  --prio-media-soft: #352813;
+  --prio-baixa: #9fb8c2;
+  --prio-baixa-soft: #1f2f35;
+  --health-critico: #ff8a7a;
+  --health-atencao: #f5b94e;
+  --health-ok: #6fd08c;
+
+  --series-1: #5cc4d6;
+  --series-2: #b39ddb;
+  --series-3: #7fb8e6;
+  --series-4: #e09ccc;
+  --series-5: #9ccc65;
+  --series-6: #d7b98e;
+}

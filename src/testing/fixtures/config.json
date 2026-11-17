@@ -1,0 +1,15 @@
+{
+    "upload": {
+        "maxFiles": 20,
+        "maxFileSizeBytes": 134217728,
+        "maxRequestSizeBytes": 1073741824,
+        "allowedExtension": ".jfr"
+    },
+    "dashboard": {
+        "defaultTopN": 10,
+        "maxTopN": 50
+    },
+    "retention": {
+        "defaultDays": 90
+    }
+}

@@ -1,0 +1,86 @@
+<div class="page">
+  <h1 class="page-title">Softwares</h1>
+  <p class="muted">Retenção do histórico e pacotes do seu código, que definem o "seu código" nas pilhas (também nas análises antigas).</p>
+
+  @if (remote.loading()) {
+    <app-loading-state label="Carregando os softwares" />
+  } @else if (remote.error(); as error) {
+    <app-error-state [error]="error" (retry)="load()" />
+  } @else if (remote.data(); as list) {
+    @if (list.length) {
+      <table class="data">
+        <caption class="sr-only">Softwares cadastrados</caption>
+        <thead>
+          <tr>
+            <th scope="col">Nome</th>
+            <th scope="col" class="num">Retenção</th>
+            <th scope="col">Pacotes da aplicação</th>
+            <th scope="col" class="num">Lotes</th>
+            <th scope="col">Último lote</th>
+            <th scope="col">Versão</th>
+            <th scope="col"><span class="sr-only">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of list; track s.name) {
+            <tr>
+              <td><strong>{{ s.name }}</strong></td>
+              <td class="num">{{ s.retentionDays }} dias</td>
+              <td>
+                @for (p of s.appPackages ?? []; track p) {
+                  <code class="pkg">{{ p }}</code>
+                } @empty {
+                  <span class="muted">não definidos</span>
+                }
+              </td>
+              <td class="num">{{ s.batchCount }}</td>
+              <td>{{ s.lastBatchAt | dateTime }}</td>
+              <td>{{ s.lastVersion ?? '—' }}</td>
+              <td><button type="button" class="link" (click)="edit(s)" [attr.aria-label]="'Editar ' + s.name">editar</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <app-empty-state title="Nenhum software ainda" message="Os softwares são criados no primeiro upload." />
+    }
+  }
+
+  @if (draft(); as d) {
+    <div class="dialog-backdrop">
+      <div class="dialog panel" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+        <h2 id="edit-title">Editar {{ d.name }}</h2>
+        <label class="field">Retenção (dias)
+          <input type="number" [min]="minRetention" [max]="maxRetention" [value]="d.retentionDays" (input)="setRetention($event)" />
+        </label>
+        @if (retentionError()) {
+          <p class="error" role="alert">{{ retentionError() }}</p>
+        }
+        <div class="field">Pacotes da aplicação
+          <div class="chips">
+            @for (p of d.appPackages; track p) {
+              <span class="chip"><code>{{ p }}</code>
+                <button type="button" (click)="removePackage(p)" [attr.aria-label]="'Remover ' + p">✕</button></span>
+            }
+          </div>
+          <form class="add" (submit)="addPackage($event)">
+            <input type="text" placeholder="ex.: com.empresa" [value]="d.packageInput" (input)="setPackageInput($event)"
+              aria-label="Novo pacote" />
+            <button type="submit">adicionar</button>
+          </form>
+          @if (d.packageError) {
+            <p class="error" role="alert">{{ d.packageError }}</p>
+          }
+        </div>
+        <p class="muted hint">ⓘ Os pacotes definem o "seu código" nas pilhas, também nas análises antigas.</p>
+        @if (saveError()) {
+          <p class="error" role="alert">{{ saveError() }}</p>
+        }
+        <div class="actions">
+          <button type="button" (click)="cancel()">Cancelar</button>
+          <button type="button" class="primary" (click)="save()" [disabled]="saving() || !!retentionError()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

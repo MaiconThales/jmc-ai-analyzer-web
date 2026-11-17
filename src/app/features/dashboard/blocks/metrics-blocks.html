@@ -1,0 +1,250 @@
+@let m = model();
+
+<section id="cpu" class="panel block" aria-labelledby="cpu-title">
+  <header class="block-head">
+    <h2 id="cpu-title">CPU</h2>
+    @if (m.cpu.available) {
+      <span class="kpis">JVM média {{ m.cpu.jvmAvg | fraction }} · pico {{ m.cpu.jvmMax | fraction }} · máquina média
+        {{ m.cpu.machineAvg | fraction }} · pico {{ m.cpu.machineMax | fraction }}</span>
+    }
+  </header>
+  @if (m.cpu.available) {
+    <app-time-series-chart [series]="m.cpu.series" unit="fraction" ariaLabel="Uso de CPU ao longo do tempo" />
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="heap" class="panel block" aria-labelledby="heap-title">
+  <header class="block-head">
+    <h2 id="heap-title">Heap</h2>
+    @if (m.heap.available) {
+      <span class="kpis">pico {{ m.heap.usedPeakBytes | bytes }} de {{ m.heap.maxBytes | bytes }} · inicial
+        {{ m.heap.initialBytes | bytes }} · coletores {{ m.heap.youngCollector ?? '—' }} / {{ m.heap.oldCollector ?? '—' }}</span>
+    }
+  </header>
+  @if (m.heap.available) {
+    <app-time-series-chart [series]="m.heap.series" unit="bytes" [markLine]="heapMarkLine()" ariaLabel="Uso do heap ao longo do tempo" />
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="gc" class="panel block" aria-labelledby="gc-title">
+  <header class="block-head">
+    <h2 id="gc-title">GC</h2>
+    @if (m.gc?.available) {
+      <span class="kpis">{{ m.gc?.count | count }} coletas · p95 {{ m.gc?.pauseP95Ms | duration }} · máxima
+        {{ m.gc?.pauseMaxMs | duration }} · {{ m.gc?.pausePct | percent1: 2 }} do tempo em pausa</span>
+    }
+  </header>
+  @if (m.gc?.available) {
+    <table class="data compact">
+      <caption class="sr-only">Maiores pausas de GC</caption>
+      <thead><tr><th scope="col">Início</th><th scope="col">Coletor</th><th scope="col">Causa</th><th scope="col" class="num">Pausa</th></tr></thead>
+      <tbody>
+        @for (p of m.gc?.topPauses ?? []; track $index) {
+          <tr>
+            <td>{{ p.start | dateTime }}</td>
+            <td>{{ p.collector }}</td>
+            <td>{{ p.cause }}</td>
+            <td class="num">{{ p.durationMs | duration }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="threads" class="panel block" aria-labelledby="threads-title">
+  <header class="block-head">
+    <h2 id="threads-title">Threads</h2>
+    @if (m.threads.available) {
+      <span class="kpis">pico {{ m.threads.peak | count }} · daemon {{ m.threads.daemonPeak | count }} · criadas
+        {{ m.threads.started | count }} · encerradas {{ m.threads.ended | count }}</span>
+    }
+  </header>
+  @if (m.threads.available) {
+    <app-time-series-chart [series]="m.threads.series" unit="count" ariaLabel="Threads ao longo do tempo" />
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="hotMethods" class="panel block" aria-labelledby="hot-title">
+  <header class="block-head">
+    <h2 id="hot-title">Hot methods</h2>
+    @if (m.hotMethods?.available) {
+      <span class="kpis">{{ m.hotMethods?.totalSamples | count }} amostras de CPU</span>
+    }
+  </header>
+  @if (m.hotMethods?.available) {
+    <app-ranking-bar-chart [items]="hotItems()" unit="count" ariaLabel="Métodos mais amostrados" />
+    <table class="data compact">
+      <thead><tr><th scope="col">Método</th><th scope="col" class="num">%</th><th scope="col">Seu código</th></tr></thead>
+      <tbody>
+        @for (h of m.hotMethods?.top ?? []; track $index) {
+          <tr>
+            <td><code>{{ h.method }}</code><app-stack-trace [frames]="h.stackFrames ?? []" [appFrame]="h.appFrame" /></td>
+            <td class="num">{{ h.percent | percent1 }}</td>
+            <td><app-app-frame [frame]="h.appFrame" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="allocation" class="panel block" aria-labelledby="alloc-title">
+  <header class="block-head">
+    <h2 id="alloc-title">Alocação</h2>
+    @if (m.allocation?.available) {
+      <span class="kpis">taxa {{ m.allocation?.rateBytesPerSec | bytes: '/s' }}</span>
+    }
+  </header>
+  @if (m.allocation?.available) {
+    <app-ranking-bar-chart [items]="allocationItems()" unit="bytes" ariaLabel="Classes mais alocadas" />
+    <table class="data compact">
+      <thead><tr><th scope="col">Classe</th><th scope="col" class="num">Alocado</th><th scope="col">Seu código</th></tr></thead>
+      <tbody>
+        @for (a of m.allocation?.top ?? []; track $index) {
+          <tr>
+            <td><code>{{ a.className }}</code><app-stack-trace [frames]="a.stackFrames ?? []" [appFrame]="a.appFrame" /></td>
+            <td class="num">{{ a.weightBytes | bytes }}</td>
+            <td><app-app-frame [frame]="a.appFrame" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="locks" class="panel block" aria-labelledby="locks-title">
+  <header class="block-head"><h2 id="locks-title">Locks</h2></header>
+  @if (m.locks?.available) {
+    <table class="data compact">
+      <thead>
+        <tr><th scope="col">Tipo</th><th scope="col">Classe</th><th scope="col" class="num">Eventos</th><th scope="col" class="num">Total</th>
+          <th scope="col" class="num">Máximo</th><th scope="col">Seu código</th></tr>
+      </thead>
+      <tbody>
+        @for (l of m.locks?.top ?? []; track $index) {
+          <tr>
+            <td>{{ lockLabel[l.type ?? ''] ?? l.type }}</td>
+            <td><code [title]="l.className">{{ simpleClassName(l.className) }}</code></td>
+            <td class="num">{{ l.count | count }}</td>
+            <td class="num">{{ l.totalMs | duration }}</td>
+            <td class="num">{{ l.maxMs | duration }}</td>
+            <td><app-app-frame [frame]="l.appFrame" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="exceptions" class="panel block" aria-labelledby="exc-title">
+  <header class="block-head">
+    <h2 id="exc-title">Exceções</h2>
+    @if (m.exceptions?.available) {
+      <span class="kpis">{{ m.exceptions?.throwablesTotal | count }} throwables na gravação</span>
+    }
+  </header>
+  @if (m.exceptions?.available) {
+    <app-ranking-bar-chart [items]="exceptionItems()" unit="count" ariaLabel="Exceções mais lançadas" />
+    <table class="data compact">
+      <thead><tr><th scope="col">Classe</th><th scope="col" class="num">Quantidade</th><th scope="col">Exemplo</th><th scope="col">Seu código</th></tr></thead>
+      <tbody>
+        @for (e of m.exceptions?.top ?? []; track $index) {
+          <tr>
+            <td><code>{{ e.className }}</code></td>
+            <td class="num">{{ e.count | count }}</td>
+            <td class="muted">{{ e.sampleMessage }}</td>
+            <td><app-app-frame [frame]="e.appFrame" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="io" class="panel block" aria-labelledby="io-title">
+  <header class="block-head">
+    <h2 id="io-title">I/O</h2>
+    <span class="kpis">somente operações lentas (acima do limiar da gravação)</span>
+  </header>
+  @if (m.io?.available) {
+    <ul class="totals">
+      @for (t of ioTotals(); track t.type) {
+        <li>{{ ioLabel[t.type] ?? t.type }}: {{ t.count | count }} operações · {{ t.bytes | bytes }} · {{ t.totalMs | duration }}</li>
+      }
+    </ul>
+    <table class="data compact">
+      <thead>
+        <tr><th scope="col">Tipo</th><th scope="col">Alvo</th><th scope="col" class="num">Operações</th><th scope="col" class="num">Total</th>
+          <th scope="col" class="num">Máximo</th></tr>
+      </thead>
+      <tbody>
+        @for (i of m.io?.top ?? []; track $index) {
+          <tr>
+            <td>{{ ioLabel[i.type ?? ''] ?? i.type }}</td>
+            <td><code>{{ i.target }}</code></td>
+            <td class="num">{{ i.count | count }}</td>
+            <td class="num">{{ i.totalMs | duration }}</td>
+            <td class="num">{{ i.maxMs | duration }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="leakSuspects" class="panel block" aria-labelledby="leak-title">
+  <header class="block-head">
+    <h2 id="leak-title">Suspeitos de vazamento</h2>
+    <span class="kpis">objetos antigos ainda vivos, com a pilha de quem alocou</span>
+  </header>
+  @if (m.leakSuspects?.available) {
+    <table class="data compact">
+      <thead><tr><th scope="col">Classe</th><th scope="col" class="num">Amostras</th><th scope="col" class="num">Idade máx.</th><th scope="col">Seu código</th></tr></thead>
+      <tbody>
+        @for (l of m.leakSuspects?.top ?? []; track $index) {
+          <tr>
+            <td><code>{{ l.className }}</code><app-stack-trace [frames]="l.stackFrames ?? []" [appFrame]="l.appFrame" /></td>
+            <td class="num">{{ l.samples | count }}</td>
+            <td class="num">{{ l.maxAgeMs | duration }}</td>
+            <td><app-app-frame [frame]="l.appFrame" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<section id="threadCpu" class="panel block" aria-labelledby="tcpu-title">
+  <header class="block-head"><h2 id="tcpu-title">CPU por thread</h2></header>
+  @if (m.threadCpu?.available) {
+    <app-ranking-bar-chart [items]="threadCpuItems()" unit="fraction" ariaLabel="Threads com maior uso de CPU" />
+  } @else {
+    <ng-container *ngTemplateOutlet="unavailable" />
+  }
+</section>
+
+<ng-template #unavailable>
+  <p class="muted unavailable">Sem dados nesta gravação. <a [routerLink]="[]" fragment="coverage" queryParamsHandling="preserve">Veja a cobertura</a>
+    para saber como gravar.</p>
+</ng-template>

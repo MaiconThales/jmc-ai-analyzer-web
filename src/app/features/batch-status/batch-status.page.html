@@ -1,0 +1,67 @@
+<div class="page">
+  @if (store.error(); as error) {
+    @if (error.code === 'NOT_FOUND') {
+      <div class="panel" role="alert">
+        <h1 class="page-title">Lote não encontrado</h1>
+        <a routerLink="/history">Voltar ao histórico</a>
+      </div>
+    } @else {
+      <app-error-state [error]="error" (retry)="store.start(batchId())" />
+    }
+  } @else if (store.batch(); as b) {
+    <header class="head">
+      <div>
+        <p class="crumb muted">Lote · {{ b.environment ?? 'ambiente não informado' }}</p>
+        <h1 class="page-title">{{ b.software }} {{ b.softwareVersion ?? '' }}</h1>
+        @if (b.description) {
+          <p class="muted">“{{ b.description }}”</p>
+        }
+      </div>
+      <div aria-live="polite"><app-status-chip [status]="b.status" /></div>
+    </header>
+
+    <table class="data">
+      <caption class="sr-only">Gravações do lote</caption>
+      <thead>
+        <tr>
+          <th scope="col">Arquivo</th>
+          <th scope="col" class="num">Tamanho</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Início</th>
+          <th scope="col">Fim</th>
+          <th scope="col"><span class="sr-only">Ações</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of b.recordings ?? []; track r.id) {
+          <tr>
+            <td><code>{{ r.originalName }}</code>
+              @if (r.status === 'FAILED') {
+                <div class="err">{{ errorText(r.errorCode) }} ({{ r.errorCode }})</div>
+              }
+            </td>
+            <td class="num">{{ r.sizeBytes | bytes }}</td>
+            <td><app-status-chip [status]="r.status" /></td>
+            <td>{{ r.processingStartedAt | dateTime }}</td>
+            <td>{{ r.processingFinishedAt | dateTime }}</td>
+            <td>
+              @if (r.status === 'COMPLETED') {
+                <a [routerLink]="['/recordings', r.id]">Ver dashboard</a>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="actions">
+      @if (finished() && hasCompleted()) {
+        <a mat-flat-button [routerLink]="['/batches', b.batchId, 'dashboard']">Ver dashboard do lote</a>
+      } @else if (!finished()) {
+        <p class="muted">Processando… a página atualiza sozinha.</p>
+      }
+    </div>
+  } @else {
+    <app-loading-state label="Carregando o lote" />
+  }
+</div>

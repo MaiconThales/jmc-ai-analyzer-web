@@ -1,0 +1,103 @@
+.upload {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.drop {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 32px 16px;
+  text-align: center;
+
+  &.dragging {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+  }
+
+  p {
+    margin: 0 0 8px;
+  }
+}
+
+.pick {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--brand);
+  border: 1px solid var(--brand);
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  &:focus-within {
+    outline: 3px solid var(--accent);
+  }
+}
+
+.files {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .name {
+    font-family: var(--mono);
+    overflow-wrap: anywhere;
+  }
+
+  .state {
+    color: var(--health-ok);
+  }
+
+  .invalid .state {
+    color: var(--prio-alta);
+  }
+}
+
+.total {
+  margin: 0;
+  font-size: 13px;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 16px;
+
+  .wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.error {
+  color: var(--prio-alta);
+  font-weight: 600;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  mat-progress-bar {
+    flex: 1;
+  }
+}

@@ -1,0 +1,93 @@
+<div class="page">
+  <h1 class="page-title">Enviar gravações JFR</h1>
+  <p class="muted">Envie até {{ config().maxFiles }} arquivos {{ config().allowedExtension }} de até {{ config().maxFileSizeBytes | bytes }} cada.</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="upload">
+    <div class="drop" [class.dragging]="dragging()" (dragover)="onDragOver($event)" (dragleave)="dragging.set(false)"
+      (drop)="onDrop($event)">
+      <p>Arraste arquivos {{ config().allowedExtension }} aqui ou</p>
+      <label class="pick">
+        Escolher arquivos
+        <input type="file" multiple [accept]="config().allowedExtension" (change)="onFiles($event)" data-testid="file-input" />
+      </label>
+    </div>
+
+    @if (store.files().length) {
+      <ul class="files" aria-label="Arquivos selecionados">
+        @for (f of store.files(); track f.file.name + f.file.size; let i = $index) {
+          <li [class.invalid]="f.error">
+            <span class="name">{{ f.file.name }}</span>
+            <span class="size">{{ f.file.size | bytes }}</span>
+            <span class="state">{{ f.error ? '✗ ' + f.error : '✓' }}</span>
+            <button type="button" mat-button (click)="store.remove(i)" [attr.aria-label]="'Remover ' + f.file.name">remover</button>
+          </li>
+        }
+      </ul>
+      <p class="muted total">Total: {{ store.totalBytes() | bytes }}</p>
+    }
+    @if (store.files().length && store.batchError()) {
+      <p class="error" role="alert">{{ store.batchError() }}</p>
+    }
+
+    <div class="fields">
+      <mat-form-field appearance="outline">
+        <mat-label>Software</mat-label>
+        <input matInput formControlName="software" [matAutocomplete]="auto" autocomplete="off" required />
+        <mat-autocomplete #auto="matAutocomplete">
+          @for (name of suggestions(); track name) {
+            <mat-option [value]="name">{{ name }}</mat-option>
+          }
+        </mat-autocomplete>
+        <mat-hint>minúsculas, números e hífen, ex.: billing-service</mat-hint>
+        @if (form.controls.software.hasError('required')) {
+          <mat-error>Informe o software.</mat-error>
+        } @else if (form.controls.software.hasError('pattern')) {
+          <mat-error>Use minúsculas, números e hífen (2 a 64 caracteres).</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Versão</mat-label>
+        <input matInput formControlName="softwareVersion" />
+        @if (form.controls.softwareVersion.hasError('maxlength')) {
+          <mat-error>Até 64 caracteres.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ambiente</mat-label>
+        <mat-select formControlName="environment">
+          <mat-option value="">Não informado</mat-option>
+          @for (env of environments; track env) {
+            <mat-option [value]="env">{{ env }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>Descrição</mat-label>
+        <textarea matInput formControlName="description" rows="2" placeholder="ex.: lentidão no fechamento às 14h"></textarea>
+        <mat-hint align="end">{{ descriptionLength() }}/{{ maxDescription }}</mat-hint>
+        @if (form.controls.description.hasError('maxlength')) {
+          <mat-error>Até {{ maxDescription }} caracteres.</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    @if (store.error()) {
+      <p class="error" role="alert">{{ store.error() }}</p>
+    }
+
+    <div class="actions">
+      @if (store.uploading()) {
+        <mat-progress-bar mode="determinate" [value]="store.progress()" aria-label="Progresso do envio" />
+        <span>{{ store.progress() }}%</span>
+        <button type="button" mat-stroked-button (click)="store.cancel()">Cancelar</button>
+      } @else {
+        <button type="submit" mat-flat-button [disabled]="!store.canSubmit()">
+          Enviar {{ store.files().length || '' }} {{ store.files().length === 1 ? 'arquivo' : 'arquivos' }}
+        </button>
+      }
+    </div>
+  </form>
+</div>

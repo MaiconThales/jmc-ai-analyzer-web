@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64" role="img" aria-labelledby="t">
+  <title id="t">JMC AI Analyzer</title>
+  <rect width="64" height="64" rx="14" fill="#0B5563"/>
+  <path d="M10 36 H22 L26 26 L32 44 L37 20 L42 36 H48" fill="none" stroke="#FFFFFF" stroke-width="4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="52" cy="36" r="4" fill="#5CC4D6"/>
+  <text x="80" y="31" font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif" font-size="22" font-weight="700"
+        fill="#14232A" letter-spacing="0.5">JMC AI Analyzer</text>
+  <text x="80" y="52" font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif" font-size="13" font-weight="500"
+        fill="#4E626B">diagnóstico de gravações JFR</text>
+</svg>

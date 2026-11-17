@@ -1,0 +1,7 @@
+{
+    "detail": "Parte obrigat\u00f3ria ausente: files",
+    "instance": "/api/v1/analyses",
+    "status": 400,
+    "title": "Nenhum arquivo enviado",
+    "code": "EMPTY_UPLOAD"
+}

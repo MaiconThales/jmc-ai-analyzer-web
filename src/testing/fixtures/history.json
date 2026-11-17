@@ -1,0 +1,49 @@
+{
+    "content": [
+        {
+            "batchId": "703f6762-820c-4cf9-a85d-d601ac2edaf0",
+            "software": "fixture-app",
+            "softwareVersion": null,
+            "environment": null,
+            "description": null,
+            "createdAt": "2026-11-17T16:48:11.444776Z",
+            "fileCount": 2,
+            "status": "PARTIAL",
+            "warningFindings": 3,
+            "healthScore": 8,
+            "highPriorityItems": 1
+        },
+        {
+            "batchId": "e4ade0c8-0cb8-4294-95f2-1ad75e338a8d",
+            "software": "fixture-app",
+            "softwareVersion": "1.4.2",
+            "environment": "PROD",
+            "description": "lentid\u00e3o no fechamento",
+            "createdAt": "2026-11-17T16:48:11.392920Z",
+            "fileCount": 3,
+            "status": "COMPLETED",
+            "warningFindings": 7,
+            "healthScore": 8,
+            "highPriorityItems": 1
+        },
+        {
+            "batchId": "620a3501-f567-4088-8521-e3fc62921015",
+            "software": "compose-demo",
+            "softwareVersion": null,
+            "environment": "PROD",
+            "description": null,
+            "createdAt": "2026-11-17T16:03:05.659460Z",
+            "fileCount": 1,
+            "status": "COMPLETED",
+            "warningFindings": 3,
+            "healthScore": 8,
+            "highPriorityItems": 1
+        }
+    ],
+    "page": {
+        "size": 20,
+        "number": 0,
+        "totalElements": 3,
+        "totalPages": 1
+    }
+}
