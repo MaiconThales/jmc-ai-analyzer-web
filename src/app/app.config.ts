@@ -1,4 +1,4 @@
-import { registerLocaleData } from '@angular/common';
+import { ViewportScroller, registerLocaleData } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import localePt from '@angular/common/locales/pt';
 import {
@@ -12,6 +12,7 @@ import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from 
 import { provideEchartsCore } from 'ngx-echarts';
 import { routes } from './app.routes';
 import { AppConfigStore } from './core/config/app-config.store';
+import { ContentScroller } from './core/layout/content-scroller';
 import { problemJsonInterceptor } from './core/interceptors/problem-json.interceptor';
 
 registerLocaleData(localePt);
@@ -28,5 +29,7 @@ export const appConfig: ApplicationConfig = {
     provideEchartsCore({ echarts: () => import('./shared/charts/echarts-setup') }),
     provideAppInitializer(() => inject(AppConfigStore).load()),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
+    // menus fixos: quem rola é a área de conteúdo, não a janela
+    { provide: ViewportScroller, useClass: ContentScroller },
   ],
 };

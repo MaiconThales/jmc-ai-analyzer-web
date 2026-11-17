@@ -5,19 +5,14 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   selector: 'app-topn-select',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <label class="topn">
+    <label class="field-label">
       Itens por ranking
-      <select [value]="value()" (change)="changed.emit(toNumber($event))">
+      <select class="control" [value]="value()" (change)="changed.emit(toNumber($event))">
         @for (option of options(); track option) {
           <option [value]="option" [selected]="option === value()">{{ option }}</option>
         }
       </select>
     </label>
-  `,
-  styles: `
-    .topn { font-size: 13px; color: var(--text-muted); display: inline-flex; gap: 6px; align-items: center; }
-    select { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border);
-      border-radius: 8px; padding: 4px 8px; }
   `,
 })
 export class TopNSelect {

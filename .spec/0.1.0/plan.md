@@ -151,6 +151,11 @@ Padrão: `signal` para o estado bruto, `computed` para os derivados (contagem po
 - `styles/_theme.scss`: tema Material M3 com a cor primária derivada de `#0B5563` e tipografia Inter.
 - Fontes via `@fontsource`, importadas em `styles.scss`.
 - Logos de `jmc-ai-analyzer-web/v0.1.0/assets/` copiados para `public/` (favicon gerado do `logo-mark.svg`).
+- **Layout** (`app.html`/`app.scss`): grade com barra superior, menu e `<main id="conteudo">`; `body` com `overflow: hidden` e altura `100dvh`, então só o `main` rola. `main` tem `position: relative` para conter elementos absolutos (ex.: `.sr-only`), que de outro modo esticariam a janela.
+- **Rolagem**: `ContentScroller` (`core/layout/content-scroller.ts`) substitui o `ViewportScroller` e rola o `main`; o roteador continua cuidando de âncoras, topo e restauração.
+- **Utilitários globais** (`styles.scss`): `.page`, `.page-head`, `.eyebrow`, `.panel`, `.btn`, `.control`, `.kpi-grid`/`.kpi`, `.table-wrap`, `table.data.stack` (vira cartões abaixo de 640 px, com `data-label`), `.reveal`, `.skeleton` e as `@keyframes`.
+- **Ícones**: `shared/components/icon.ts` (SVG de traço desenhados no app).
+- **Dashboard**: `DashboardSummary` (KPIs de relance), `SectionNav` (barra de seções fixa com marcação da seção visível pela posição de rolagem) e filtro por prioridade no `DiagnosisList`.
 
 ## 9. Infraestrutura
 
@@ -228,4 +233,11 @@ O bloco `frontend` do `docker-compose.yml` da API é ativado (ver nota 07 do fro
 | API retorna `null` | tipos gerados só com `?` | código usa `??` e verificação de `null`/`undefined` | o OpenAPI não marca campos anuláveis |
 | Upload duplicado | — | o mesmo arquivo (nome + tamanho) não entra duas vezes | evita lote com arquivo repetido |
 | E2E | Playwright | usa o Chrome instalado (`channel: 'chrome'`), sem baixar navegadores | ambiente local |
+| Rolagem com menus fixos (W-D13) | rolagem da janela + offset da barra | `ContentScroller` rola o `main`; `ANCHOR_OFFSET` desconta a barra de seções | pedido de menus fixos com rolagem só no meio |
+| Animações | — | CSS puro, `animation-fill-mode: backwards` | com `both`, o `transform` final criava um bloco de contenção e o diálogo `fixed` ficava preso dentro da página |
+| Tabelas com rolagem lateral | — | `.table-wrap` com `tabindex="0"`, `role="region"` e `aria-label` | o axe exige que região rolável seja alcançável pelo teclado |
+| Estilos dos blocos | um `blocks.scss` | `diagnosis-list.scss` separado | orçamento de 6 kB de estilo por componente |
+| CSS global no build de produção | padrão do Angular (CSS crítico inline) | `optimization.styles.inlineCritical: false` no `angular.json` + E2E que confere um estilo global | o Angular carrega o `styles.css` com `media="print"` e troca por um `<script>` inline; a CSP do Nginx (`script-src 'self'`) bloqueia o script e o CSS global nunca era aplicado |
+| Teclado com menus fixos | — | foco no `main` a cada troca de caminho (não de query/fragmento) | com o `body` sem rolagem, PageDown/Espaço não faziam nada até clicar no conteúdo |
+| Seção visível na barra | `IntersectionObserver` | posição de rolagem do `main` (`requestAnimationFrame`) | o observador marcava a seção anterior quando o bloco era alto |
 

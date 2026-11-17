@@ -1,0 +1,243 @@
+// "O que arrumar": filtro por prioridade e cartões (separado de blocks.scss pelo orçamento de estilo por componente).
+:host {
+  display: block;
+}
+
+h2 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+// ---------- cartões de diagnóstico ----------
+.filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 6px 4px 12px;
+    cursor: pointer;
+    transition:
+      background var(--dur-fast) var(--ease),
+      color var(--dur-fast) var(--ease),
+      border-color var(--dur-fast) var(--ease);
+
+    &:hover:not(:disabled) {
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    &.on {
+      color: var(--surface);
+      background: var(--text);
+      border-color: var(--text);
+
+      &.f-alta {
+        background: var(--prio-alta);
+        border-color: var(--prio-alta);
+      }
+
+      &.f-media {
+        background: var(--prio-media);
+        border-color: var(--prio-media);
+      }
+
+      &.f-baixa {
+        background: var(--prio-baixa);
+        border-color: var(--prio-baixa);
+      }
+
+      .n {
+        background: color-mix(in srgb, var(--surface) 25%, transparent);
+        color: inherit;
+      }
+    }
+  }
+
+  .n {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: var(--surface-2);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+}
+
+.card {
+  --pc: var(--prio-baixa);
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px 16px 22px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition:
+    box-shadow var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: var(--pc);
+  }
+
+  &:hover {
+    box-shadow: var(--shadow);
+    border-color: color-mix(in srgb, var(--pc) 35%, var(--border));
+  }
+
+  &.alta {
+    --pc: var(--prio-alta);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--prio-alta-soft) 55%, var(--surface)) 0, var(--surface) 240px);
+  }
+
+  &.media {
+    --pc: var(--prio-media);
+  }
+
+  h3 {
+    font-size: 17px;
+    line-height: 1.35;
+    margin: 10px 0 4px;
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cat {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.spread {
+  font-size: 12px;
+  color: var(--brand);
+  font-weight: 700;
+  background: var(--brand-soft);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.evidence {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+
+.loc {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+
+  code {
+    font-size: 12px;
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+}
+
+.action {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--action-bg);
+  border: 1px solid color-mix(in srgb, var(--brand) 22%, transparent);
+
+  p {
+    margin: 4px 0 0;
+    font-size: 15px;
+    font-weight: 500;
+  }
+}
+
+.action-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brand);
+}
+
+.links {
+  display: flex;
+  gap: 6px 14px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:empty {
+    display: none;
+  }
+
+  .rec {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+  }
+}
+

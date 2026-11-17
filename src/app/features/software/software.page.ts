@@ -3,6 +3,7 @@ import { ApiError, isApiError } from '../../core/errors/api-error';
 import { describeError } from '../../core/errors/error-messages';
 import { SoftwareResponse } from '../../core/api/models';
 import { SoftwareApi } from '../../core/api/software.api';
+import { Icon } from '../../shared/components/icon';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/states';
 import { DateTimePipe } from '../../shared/pipes/format.pipes';
 import { Remote } from '../../shared/state/remote';
@@ -20,7 +21,7 @@ interface Draft {
 @Component({
   selector: 'app-software-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EmptyState, ErrorState, LoadingState, DateTimePipe],
+  imports: [EmptyState, ErrorState, LoadingState, DateTimePipe, Icon],
   templateUrl: './software.page.html',
   styleUrl: './software.page.scss',
 })

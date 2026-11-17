@@ -1,6 +1,12 @@
 <div class="page">
-  <h1 class="page-title">Softwares</h1>
-  <p class="muted">Retenção do histórico e pacotes do seu código, que definem o "seu código" nas pilhas (também nas análises antigas).</p>
+  <header class="page-head">
+    <div>
+      <p class="eyebrow"><app-icon name="grid" [size]="14" /> Cadastro</p>
+      <h1 class="page-title">Softwares</h1>
+      <p class="lead">Retenção do histórico e pacotes do seu código. Os pacotes definem o "seu código" nas pilhas, também nas análises
+        antigas.</p>
+    </div>
+  </header>
 
   @if (remote.loading()) {
     <app-loading-state label="Carregando os softwares" />
@@ -8,78 +14,90 @@
     <app-error-state [error]="error" (retry)="load()" />
   } @else if (remote.data(); as list) {
     @if (list.length) {
-      <table class="data">
-        <caption class="sr-only">Softwares cadastrados</caption>
-        <thead>
-          <tr>
-            <th scope="col">Nome</th>
-            <th scope="col" class="num">Retenção</th>
-            <th scope="col">Pacotes da aplicação</th>
-            <th scope="col" class="num">Lotes</th>
-            <th scope="col">Último lote</th>
-            <th scope="col">Versão</th>
-            <th scope="col"><span class="sr-only">Ações</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (s of list; track s.name) {
-            <tr>
-              <td><strong>{{ s.name }}</strong></td>
-              <td class="num">{{ s.retentionDays }} dias</td>
-              <td>
-                @for (p of s.appPackages ?? []; track p) {
-                  <code class="pkg">{{ p }}</code>
-                } @empty {
-                  <span class="muted">não definidos</span>
-                }
-              </td>
-              <td class="num">{{ s.batchCount }}</td>
-              <td>{{ s.lastBatchAt | dateTime }}</td>
-              <td>{{ s.lastVersion ?? '—' }}</td>
-              <td><button type="button" class="link" (click)="edit(s)" [attr.aria-label]="'Editar ' + s.name">editar</button></td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <div class="panel table-panel reveal">
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
+          <table class="data stack">
+            <caption class="sr-only">Softwares cadastrados</caption>
+            <thead>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col" class="num">Retenção</th>
+                <th scope="col">Pacotes da aplicação</th>
+                <th scope="col" class="num">Lotes</th>
+                <th scope="col">Último lote</th>
+                <th scope="col">Versão</th>
+                <th scope="col"><span class="sr-only">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of list; track s.name; let i = $index) {
+                <tr class="reveal" [style.--i]="i + 1">
+                  <td data-label="Nome"><strong>{{ s.name }}</strong></td>
+                  <td data-label="Retenção" class="num">{{ s.retentionDays }} dias</td>
+                  <td data-label="Pacotes da aplicação" class="wide">
+                    @for (p of s.appPackages ?? []; track p) {
+                      <code class="pkg">{{ p }}</code>
+                    } @empty {
+                      <span class="muted">não definidos</span>
+                    }
+                  </td>
+                  <td data-label="Lotes" class="num">{{ s.batchCount }}</td>
+                  <td data-label="Último lote">{{ s.lastBatchAt | dateTime }}</td>
+                  <td data-label="Versão">{{ s.lastVersion ?? '—' }}</td>
+                  <td class="no-label act">
+                    <button type="button" class="btn sm link" (click)="edit(s)" [attr.aria-label]="'Editar ' + s.name">
+                      <app-icon name="pencil" [size]="14" /> editar
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
     } @else {
-      <app-empty-state title="Nenhum software ainda" message="Os softwares são criados no primeiro upload." />
+      <div class="panel">
+        <app-empty-state title="Nenhum software ainda" message="Os softwares são criados no primeiro upload." />
+      </div>
     }
   }
 
   @if (draft(); as d) {
-    <div class="dialog-backdrop">
-      <div class="dialog panel" role="dialog" aria-modal="true" aria-labelledby="edit-title">
-        <h2 id="edit-title">Editar {{ d.name }}</h2>
-        <label class="field">Retenção (dias)
-          <input type="number" [min]="minRetention" [max]="maxRetention" [value]="d.retentionDays" (input)="setRetention($event)" />
-        </label>
-        @if (retentionError()) {
-          <p class="error" role="alert">{{ retentionError() }}</p>
-        }
-        <div class="field">Pacotes da aplicação
-          <div class="chips">
-            @for (p of d.appPackages; track p) {
-              <span class="chip"><code>{{ p }}</code>
-                <button type="button" (click)="removePackage(p)" [attr.aria-label]="'Remover ' + p">✕</button></span>
-            }
-          </div>
-          <form class="add" (submit)="addPackage($event)">
-            <input type="text" placeholder="ex.: com.empresa" [value]="d.packageInput" (input)="setPackageInput($event)"
-              aria-label="Novo pacote" />
-            <button type="submit">adicionar</button>
-          </form>
-          @if (d.packageError) {
-            <p class="error" role="alert">{{ d.packageError }}</p>
+    <div class="dialog-backdrop" aria-hidden="true"></div>
+    <div class="dialog panel" role="dialog" aria-modal="true" aria-labelledby="edit-title" (keydown.escape)="cancel()">
+      <header class="dialog-head">
+        <h2 id="edit-title" class="title-with-icon"><span class="icon-tile"><app-icon name="pencil" [size]="16" /></span> Editar {{ d.name }}</h2>
+        <button type="button" class="btn ghost icon-only sm" (click)="cancel()" aria-label="Fechar"><app-icon name="x" [size]="16" /></button>
+      </header>
+      <label class="field-label">Retenção (dias)
+        <input class="control" type="number" [min]="minRetention" [max]="maxRetention" [value]="d.retentionDays" (input)="setRetention($event)" />
+      </label>
+      @if (retentionError()) {
+        <p class="error" role="alert">{{ retentionError() }}</p>
+      }
+      <div class="field-label">Pacotes da aplicação
+        <div class="chips">
+          @for (p of d.appPackages; track p) {
+            <span class="chip"><code>{{ p }}</code>
+              <button type="button" (click)="removePackage(p)" [attr.aria-label]="'Remover ' + p"><app-icon name="x" [size]="12" /></button></span>
           }
         </div>
-        <p class="muted hint">ⓘ Os pacotes definem o "seu código" nas pilhas, também nas análises antigas.</p>
-        @if (saveError()) {
-          <p class="error" role="alert">{{ saveError() }}</p>
+        <form class="add" (submit)="addPackage($event)">
+          <input class="control" type="text" placeholder="ex.: com.empresa" [value]="d.packageInput" (input)="setPackageInput($event)"
+            aria-label="Novo pacote" />
+          <button type="submit" class="btn"><app-icon name="plus" [size]="14" /> adicionar</button>
+        </form>
+        @if (d.packageError) {
+          <p class="error" role="alert">{{ d.packageError }}</p>
         }
-        <div class="actions">
-          <button type="button" (click)="cancel()">Cancelar</button>
-          <button type="button" class="primary" (click)="save()" [disabled]="saving() || !!retentionError()">Salvar</button>
-        </div>
+      </div>
+      <p class="hint"><app-icon name="info" [size]="14" /> Os pacotes definem o "seu código" nas pilhas, também nas análises antigas.</p>
+      @if (saveError()) {
+        <p class="error" role="alert">{{ saveError() }}</p>
+      }
+      <div class="actions">
+        <button type="button" class="btn" (click)="cancel()">Cancelar</button>
+        <button type="button" class="btn primary" (click)="save()" [disabled]="saving() || !!retentionError()">Salvar</button>
       </div>
     </div>
   }

@@ -4,16 +4,19 @@ import { RecordingsApi } from '../../core/api/recordings.api';
 import { RecordingDashboard } from '../../core/api/models';
 import { AppConfigStore } from '../../core/config/app-config.store';
 import { describeError, messageFor } from '../../core/errors/error-messages';
-import { HealthBadge } from '../../shared/components/health-badge';
+import { Icon } from '../../shared/components/icon';
+import { formatCount, formatDuration } from '../../shared/format';
 import { ErrorState, LoadingState } from '../../shared/components/states';
 import { TopNSelect } from '../../shared/components/topn-select';
 import { BytesPipe, DurationPipe } from '../../shared/pipes/format.pipes';
 import { Remote } from '../../shared/state/remote';
 import { CoveragePanel } from '../dashboard/blocks/coverage-panel';
+import { DashboardSummary, SummaryFact } from '../dashboard/blocks/dashboard-summary';
+import { SectionNav } from '../dashboard/blocks/section-nav';
 import { DiagnosisList } from '../dashboard/blocks/diagnosis-list';
 import { FindingsList } from '../dashboard/blocks/findings-list';
 import { MetricsBlocks } from '../dashboard/blocks/metrics-blocks';
-import { fromRecording } from '../dashboard/dashboard-model';
+import { RECORDING_SECTIONS, fromRecording } from '../dashboard/dashboard-model';
 import { scrollToFragmentWhenReady } from '../dashboard/anchor-scroll';
 import { resolveTopN } from '../dashboard/top-n';
 
@@ -23,7 +26,9 @@ import { resolveTopN } from '../dashboard/top-n';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    HealthBadge,
+    Icon,
+    DashboardSummary,
+    SectionNav,
     TopNSelect,
     ErrorState,
     LoadingState,
@@ -50,6 +55,14 @@ export class RecordingDashboardPage {
   protected readonly model = computed(() => {
     const data = this.remote.data();
     return data ? fromRecording(data) : null;
+  });
+  protected readonly sections = RECORDING_SECTIONS;
+  protected readonly facts = computed<SummaryFact[]>(() => {
+    const meta = this.remote.data()?.metadata;
+    return [
+      { label: 'Duração', value: formatDuration(meta?.durationMs), sub: 'de gravação' },
+      { label: 'Eventos', value: formatCount(meta?.eventCount), sub: 'lidos da gravação' },
+    ];
   });
   protected readonly notReady = computed(() => this.remote.error()?.code === 'NOT_READY');
   protected readonly notReadyText = computed(() => {

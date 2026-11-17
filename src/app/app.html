@@ -1,27 +1,38 @@
-<a class="skip" href="#conteudo">Pular para o conteúdo</a>
-<header class="toolbar">
-  <a routerLink="/upload" class="brand" aria-label="JMC AI Analyzer, início">
-    <img src="logo-mark.svg" alt="" width="32" height="32" />
-    <span><strong>JMC AI Analyzer</strong><small>diagnóstico de gravações JFR</small></span>
-  </a>
-  <div class="tools">
-    <span class="api" [class.down]="health() && !health()!.up" role="status">
-      <span aria-hidden="true">●</span> {{ health() ? (health()!.up ? 'API ok' : 'API fora do ar') : 'verificando API' }}
-    </span>
-    <button type="button" class="theme" (click)="theme.cycle()" [attr.aria-label]="themeLabel() + '. Alternar tema'">
-      ◐ {{ themeLabel() }}
+<a class="skip" [href]="'#' + contentId">Pular para o conteúdo</a>
+<div class="shell" [class.collapsed]="collapsed()">
+  <header class="topbar">
+    <a routerLink="/upload" class="brand" aria-label="JMC AI Analyzer, início">
+      <span class="mark"><img src="logo-mark.svg" alt="" width="32" height="32" /></span>
+      <span class="brand-text"><strong>JMC AI Analyzer</strong><small>diagnóstico de gravações JFR</small></span>
+    </a>
+    <div class="tools">
+      <span class="api" [class]="apiState().css" role="status">
+        <span class="dot" aria-hidden="true"></span><span class="api-text">{{ apiState().text }}</span>
+      </span>
+      <button type="button" class="theme" (click)="theme.cycle()" [attr.aria-label]="themeLabel() + '. Alternar tema'"
+        [title]="themeLabel()">
+        <app-icon [name]="themeIcon()" /><span class="theme-text">{{ themeLabel() }}</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="sidenav" aria-label="Navegação principal">
+    <div class="nav-items">
+      @for (item of nav; track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page" [title]="item.label">
+          <app-icon [name]="item.icon" [size]="20" /><span class="label">{{ item.label }}</span>
+        </a>
+      }
+    </div>
+    <button type="button" class="collapse" (click)="toggleNav()" [attr.aria-expanded]="!collapsed()"
+      [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Recolher menu'" [title]="collapsed() ? 'Expandir menu' : 'Recolher menu'">
+      <app-icon name="panel-left" [size]="20" /><span class="label">Recolher menu</span>
     </button>
-  </div>
-</header>
-<div class="layout">
-  <nav aria-label="Navegação principal">
-    <a routerLink="/upload" routerLinkActive="active" ariaCurrentWhenActive="page">⇪ Upload</a>
-    <a routerLink="/history" routerLinkActive="active" ariaCurrentWhenActive="page">☰ Histórico</a>
-    <a routerLink="/software" routerLinkActive="active" ariaCurrentWhenActive="page">⚙ Softwares</a>
   </nav>
-  <main id="conteudo" tabindex="-1">
+
+  <main [id]="contentId" tabindex="-1">
     @if (warning(); as text) {
-      <div class="banner" role="alert">{{ text }}</div>
+      <div class="banner" role="alert"><app-icon name="alert-triangle" /><span>{{ text }}</span></div>
     }
     <router-outlet />
   </main>

@@ -72,6 +72,15 @@ Voltar: [[00 Índice]]
 > [!success] Decisão
 > Crítico < 40, atenção de 40 a 74, ok ≥ 75.
 
+### W-D13 — Acabamento visual: menus fixos, animações e telas responsivas (2026-11-17)
+
+> [!success] Decisão
+> Pedido: interface mais profissional, *clean* e intuitiva, com animações, adaptada a qualquer tela e navegador, inspirada num simulador de telemetria (cartões de KPI, barras de severidade, código da aplicação destacado, bloco de causa e ações). **Se houver menu lateral ou superior, só o meio rola.**
+> - A identidade [[#W-D10 — Identidade visual "diagnóstico clínico" (WQ3)|W-D10]] foi **mantida** (azul-petróleo, semáforo só com significado); do exemplo vieram a estrutura e o ritmo, não as cores nem o Tailwind/CDN.
+> - Menus fixos com rolagem só na área de conteúdo; menu recolhível, trilho de ícones no tablet e barra inferior no celular. Ver [[04 Telas e fluxos#Shell]].
+> - Animações só em CSS (`transform`/`opacity`), sem biblioteca; desligadas com `prefers-reduced-motion`. Ver [[09 Identidade visual#Movimento]].
+> - Dashboard com resumo de relance, barra de seções fixa e filtro por prioridade.
+
 ## Questões respondidas
 
 - [x] **WQ1 — Qualidade** → sim → [[#W-D07 — Mesmos padrões de qualidade da API|W-D07]]

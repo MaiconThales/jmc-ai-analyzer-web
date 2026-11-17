@@ -1,87 +1,98 @@
-table {
-  background: var(--surface);
-  margin-top: 16px;
-}
-
 .pkg {
   display: inline-block;
   background: var(--code-bg);
-  border-radius: 6px;
-  padding: 2px 6px;
-  margin: 0 4px 4px 0;
-}
-
-button,
-input {
-  font: inherit;
-  color: var(--text);
-  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 10px;
+  border-radius: 6px;
+  padding: 1px 6px;
+  margin: 2px 4px 2px 0;
+  font-size: 12px;
 }
 
-button {
-  cursor: pointer;
+.act {
+  text-align: right;
 }
 
 .link {
-  border: none;
   color: var(--brand);
-  font-weight: 600;
-}
+  border-color: transparent;
+  background: transparent;
 
-.primary {
-  background: var(--brand);
-  color: var(--surface);
-  border-color: var(--brand);
+  &:hover:not(:disabled) {
+    background: var(--brand-soft);
+  }
 }
 
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgb(0 0 0 / 40%);
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  z-index: 10;
+  z-index: 40;
+  background: rgb(5 15 18 / 50%);
+  animation: fade-in var(--dur) var(--ease) backwards;
 }
 
 .dialog {
-  width: min(520px, 100%);
+  position: fixed;
+  z-index: 41;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: min(540px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  box-sizing: border-box;
   display: grid;
-  gap: 12px;
+  gap: 14px;
+  box-shadow: var(--shadow-lg);
+  animation: scale-in var(--dur) var(--ease) backwards;
 
   h2 {
     margin: 0;
+    font-size: 18px;
   }
 }
 
-.field {
-  display: grid;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--text-muted);
+.dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+
+  &:empty {
+    display: none;
+  }
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background: var(--brand-soft);
+  color: var(--text);
   border-radius: 999px;
   padding: 2px 4px 2px 10px;
+  animation: scale-in var(--dur) var(--ease) backwards;
 
   button {
+    display: grid;
+    place-items: center;
     border: none;
     background: transparent;
-    padding: 2px 6px;
+    color: var(--text-muted);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+
+    &:hover {
+      background: color-mix(in srgb, var(--prio-alta) 15%, transparent);
+      color: var(--prio-alta);
+    }
   }
 }
 
@@ -91,6 +102,7 @@ button {
 
   input {
     flex: 1;
+    min-width: 0;
   }
 }
 
@@ -98,15 +110,22 @@ button {
   color: var(--prio-alta);
   margin: 0;
   font-size: 13px;
+  font-weight: 600;
 }
 
 .hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   margin: 0;
+  color: var(--text-muted);
 }
 
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }

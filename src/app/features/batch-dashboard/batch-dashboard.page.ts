@@ -3,17 +3,19 @@ import { Router, RouterLink } from '@angular/router';
 import { AnalysesApi } from '../../core/api/analyses.api';
 import { BatchDashboard } from '../../core/api/models';
 import { AppConfigStore } from '../../core/config/app-config.store';
-import { HealthBadge } from '../../shared/components/health-badge';
+import { Icon } from '../../shared/components/icon';
+import { formatCount, formatDuration } from '../../shared/format';
 import { ErrorState, LoadingState } from '../../shared/components/states';
 import { TopNSelect } from '../../shared/components/topn-select';
-import { DurationPipe } from '../../shared/pipes/format.pipes';
 import { Remote } from '../../shared/state/remote';
 import { ComparisonTable } from '../dashboard/blocks/comparison-table';
 import { CoveragePanel } from '../dashboard/blocks/coverage-panel';
+import { DashboardSummary, SummaryFact } from '../dashboard/blocks/dashboard-summary';
+import { SectionNav } from '../dashboard/blocks/section-nav';
 import { DiagnosisList } from '../dashboard/blocks/diagnosis-list';
 import { FindingsList } from '../dashboard/blocks/findings-list';
 import { MetricsBlocks } from '../dashboard/blocks/metrics-blocks';
-import { fromBatch } from '../dashboard/dashboard-model';
+import { BATCH_SECTIONS, fromBatch } from '../dashboard/dashboard-model';
 import { scrollToFragmentWhenReady } from '../dashboard/anchor-scroll';
 import { resolveTopN } from '../dashboard/top-n';
 
@@ -23,7 +25,9 @@ import { resolveTopN } from '../dashboard/top-n';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    HealthBadge,
+    Icon,
+    DashboardSummary,
+    SectionNav,
     TopNSelect,
     ErrorState,
     LoadingState,
@@ -32,7 +36,6 @@ import { resolveTopN } from '../dashboard/top-n';
     MetricsBlocks,
     FindingsList,
     ComparisonTable,
-    DurationPipe,
   ],
   templateUrl: './batch-dashboard.page.html',
   styleUrl: '../dashboard/dashboard-page.scss',
@@ -50,6 +53,14 @@ export class BatchDashboardPage {
   protected readonly model = computed(() => {
     const data = this.remote.data();
     return data ? fromBatch(data) : null;
+  });
+  protected readonly sections = BATCH_SECTIONS;
+  protected readonly facts = computed<SummaryFact[]>(() => {
+    const data = this.remote.data();
+    return [
+      { label: 'Gravações', value: formatCount(data?.metadata?.recordingCount), sub: 'concluídas no lote' },
+      { label: 'Tempo gravado', value: formatDuration(data?.metadata?.totalDurationMs), sub: 'soma das gravações' },
+    ];
   });
   protected readonly totalRecordings = computed(() => this.remote.data()?.includedRecordings?.length ?? 0);
 

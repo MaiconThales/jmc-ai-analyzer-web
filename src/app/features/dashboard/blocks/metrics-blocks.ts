@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AppFrame } from '../../../shared/components/app-frame';
+import { Icon } from '../../../shared/components/icon';
 import { StackTrace } from '../../../shared/components/stack-trace';
 import { RankingItem } from '../../../shared/charts/chart-options';
 import { RankingBarChart } from '../../../shared/charts/ranking-bar-chart';
@@ -40,6 +41,7 @@ const LOCK_LABEL: Record<string, string> = {
     TimeSeriesChart,
     RankingBarChart,
     AppFrame,
+    Icon,
     StackTrace,
     BytesPipe,
     CountPipe,

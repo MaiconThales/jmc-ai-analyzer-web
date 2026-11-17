@@ -15,13 +15,27 @@ Voltar: [[00 Índice]] · Requisitos: [[03 Requisitos]]
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────┐
-│ ☰  JMC AI Analyzer                          ● API ok    ◐ tema      │
+│ [logo] JMC AI Analyzer                     ● API ok   [🖥 Tema]      │  ← barra superior fixa
 ├──────────────┬───────────────────────────────────────────────────────┤
-│ ⇪ Upload     │                                                       │
-│ ☰ Histórico  │                (conteúdo da rota)                     │
-│ ⚙ Softwares  │                                                       │
+│ ⤒ Upload     │                                                       │
+│ ↺ Histórico  │        (conteúdo da rota — a ÚNICA área que rola)     │
+│ ▦ Softwares  │                                                       │
+│              │                                                       │
+│ ◧ Recolher   │                                                       │  ← menu lateral fixo
 └──────────────┴───────────────────────────────────────────────────────┘
 ```
+
+> [!important] Menus fixos: só o meio rola
+> A página nunca rola. A barra superior e o menu ficam parados e **só a área de conteúdo rola**. Âncoras (`#cpu`), "voltar ao topo" ao trocar de tela e a posição ao voltar no histórico continuam funcionando, porque o roteador rola essa área e não a janela.
+
+| Largura | Menu |
+|---|---|
+| ≥ 1024 px | lateral com ícone + rótulo; botão **Recolher menu** deixa só os ícones (a escolha fica salva no navegador) |
+| 640–1023 px | trilho só com ícones (rótulo vira dica e nome acessível) |
+| < 640 px (celular) | **barra inferior** com ícone + rótulo; a barra superior mostra só o logo, o ponto de saúde da API e o botão de tema |
+
+- Ícones próprios em SVG (traço, 24×24), sem fonte de ícones nem CDN.
+- Ao entrar numa tela, o conteúdo aparece com um leve deslize; cartões e linhas entram em cascata. Tudo some com `prefers-reduced-motion`.
 
 ## Upload
 
@@ -56,44 +70,48 @@ broken.jfr       0,5 MB   ✗ Falhou: arquivo JFR ilegível (PARSE_ERROR)
 ## Dashboard da gravação
 
 ```text
-app-1.jfr · billing-service 1.4.2 · HotSpot 21 · 60 s        [ 8 ] saúde   topN [10 ▾]
+GRAVAÇÃO · billing-service 1.4.2                                   Itens por ranking [10 ▾]
+app-1.jfr
+HotSpot 21 · 60 s gravados · Ver o lote completo →
+┌─────────────────┬───────────┬───────────┬───────────┬──────────┬──────────┐
+│ ( 8 ) Crítico   │ Prio alta │ Prio média│ Prio baixa│ Duração  │ Eventos  │  ← resumo de relance
+│      nota saúde │ 1         │ 5         │ 2         │ 60 s     │ 36.758   │
+└─────────────────┴───────────┴───────────┴───────────┴──────────┴──────────┘
+[O que arrumar] Cobertura  CPU  Heap  GC  Threads  Hot methods  …  Metadados   ← barra de seções fixa
 ═══════════════════════════════════════════════════════════════════════════════
-O QUE ARRUMAR (8)                                   ALTA 1 · MÉDIA 5 · BAIXA 2
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ ▲ ALTA · AMBIENTE   Outros processos consumindo CPU                         │
-│   43% da CPU foi usada por outros processos (19:51:00–19:51:13)             │
-│   ➜ Grave num ambiente isolado ou limite os outros processos.  [ver dados]  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│ ■ MÉDIA · MEMÓRIA   Taxa de alocação alta                                   │
-│   1,7 GB/s; o tipo mais alocado é java.lang.String                          │
-│   📍 seu código: HexaUtil.converteString:23        [pilha ▸]                │
-│   ➜ Reduza alocações temporárias no ponto indicado.            [ver dados]  │
-└─────────────────────────────────────────────────────────────────────────────┘
-COBERTURA DA GRAVAÇÃO
+🔧 O QUE ARRUMAR (8)                     [Todas 8] [ALTA 1] [MÉDIA 5] [BAIXA 2]  ← filtro
+┃ ▲ ALTA · AMBIENTE                                                            
+┃ Outros processos consumindo CPU                                              
+┃ 43% da CPU foi usada por outros processos (19:51:00–19:51:13)                
+┃ ┌ → COMO ARRUMAR ───────────────────────────────────────────────────────┐   
+┃ │ Grave num ambiente isolado ou limite os outros processos.             │   
+┃ └───────────────────────────────────────────────────────────────────────┘   
+┃ ver dados ↓                                                                  
+┃ ■ MÉDIA · MEMÓRIA   Taxa de alocação alta                                    
+┃ 📍 seu código: HexaUtil.converteString:23  [Copiar]   ▸ pilha (5)            
+COBERTURA DA GRAVAÇÃO                                   10 de 12 domínios com dados
  ✗ EXCEPTIONS  jdk.JavaExceptionThrow desabilitado → habilite ...
- ◐ HOT_METHODS 220 amostras em 60 s → grave por mais tempo ...
- $ -XX:StartFlightRecording=settings=profile,...                    [copiar]
-═══════════════════════════════════════════════════════════════════════════════
-CPU            [série JVM usuário / sistema / máquina]     média 2% · pico 4%
-HEAP           [série usado / comprometido]                pico 352 MB de 768 MB
-GC             24 coletas · p95 64 ms · máx 70 ms · 1,2%   [top pausas]
-THREADS        pico 32 · daemon 26 · criadas 4 · encerradas 2
-HOT METHODS    [barras: método · amostras · %]   📍 appFrame por linha
-ALOCAÇÃO       [barras por classe · bytes]       📍 appFrame por linha
-LOCKS · EXCEÇÕES · I/O · VAZAMENTO · CPU POR THREAD   (mesmo padrão)
-ACHADOS DO JMC (68 regras)                                         [expandir ▸]
-METADADOS                                                          [expandir ▸]
+ $ -XX:StartFlightRecording=settings=profile,...                    [Copiar comando]
+┌ CPU  [JVM média 2%][pico 4%]… ┐┌ HEAP [pico 352 MB de 768 MB]… ┐   ← 2 colunas em telas ≥ 1200 px
+└───────────────────────────────┘└───────────────────────────────┘
+┌ GC ───────────────────────────┐┌ THREADS ──────────────────────┐
+HOT METHODS · ALOCAÇÃO · LOCKS · EXCEÇÕES · I/O · VAZAMENTO · CPU POR THREAD  (largura total)
+ACHADOS DO JMC (68 regras)                                         [▾]
+METADADOS                                                          [▾]
 ```
 
-- Cada bloco tem um **resumo em texto** acima do gráfico (acessibilidade e leitura rápida).
-- Os blocos indisponíveis ficam recolhidos e mostram "sem dados nesta gravação; veja a cobertura".
+- O **resumo** responde "está grave?" antes de qualquer gráfico; o cartão "Prioridade alta" leva direto ao diagnóstico.
+- A **barra de seções** fica presa no topo da área de conteúdo, marca a seção visível e rola sozinha no celular.
+- Cada bloco tem um **resumo em números** (chips) acima do gráfico (acessibilidade e leitura rápida).
+- Os blocos indisponíveis mostram "sem dados nesta gravação; veja a cobertura".
+- Tabelas largas rolam para os lados **dentro do próprio cartão**, nunca a página.
 
 ## Dashboard do lote
 
 Igual ao da gravação, com estas mudanças:
 
 ```text
-LOTE billing-service 1.4.2 · 3 gravações (2 concluídas) · 3 min       [ 8 ] pior saúde
+LOTE · DEV  billing-service 1.4.2                       resumo: saúde · prioridades · gravações · tempo
 ⚠ 1 gravação ficou fora: broken.jfr (PARSE_ERROR)
 O QUE ARRUMAR
 │ ■ MÉDIA · CONFIG_JVM  JVM limitada a menos processadores...  em 3 de 3 gravações ▾

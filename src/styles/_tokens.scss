@@ -1,5 +1,5 @@
 // Tokens da identidade "diagnóstico clínico" (jmc-ai-analyzer-web/v0.1.0/09 Identidade visual.md).
-// Todos os pares de texto têm contraste ≥ 4,5:1 sobre --surface.
+// Todos os pares de texto têm contraste ≥ 4,5:1 sobre --surface e --surface-2.
 :root {
   --brand: #0b5563;
   --brand-strong: #073b45;
@@ -7,9 +7,11 @@
   --accent: #5cc4d6;
   --text: #14232a;
   --text-muted: #4e626b;
-  --bg: #f7f9fa;
+  --bg: #f3f6f7;
   --surface: #ffffff;
+  --surface-2: #f6f9fa;
   --border: #dde5e8;
+  --border-strong: #c5d2d7;
   --code-bg: #eef3f5;
 
   --prio-alta: #b42318;
@@ -21,6 +23,7 @@
   --health-critico: #b42318;
   --health-atencao: #9a5b00;
   --health-ok: #1e7a3d;
+  --health-ok-soft: #e6f4ea;
   --coverage-ok: var(--health-ok);
   --coverage-insuficiente: var(--health-atencao);
   --coverage-ausente: var(--health-critico);
@@ -32,23 +35,41 @@
   --series-5: #4c7a2e;
   --series-6: #8c6d3f;
 
+  --shadow-sm: 0 1px 2px rgb(15 40 48 / 6%);
+  --shadow: 0 1px 2px rgb(15 40 48 / 6%), 0 4px 14px rgb(15 40 48 / 6%);
+  --shadow-lg: 0 18px 40px rgb(15 40 48 / 16%);
+  --action-bg: linear-gradient(135deg, #e3f1f4 0%, #eef6f8 100%);
+
   --font: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
   --mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
-  --radius: 12px;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
   --space: 8px;
+  --topbar-h: 64px;
+  --page-max: 1320px;
+  --page-pad: clamp(16px, 3vw, 32px);
+
+  // movimento: só transform/opacity; tudo zera com prefers-reduced-motion
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 140ms;
+  --dur: 220ms;
+  --dur-slow: 380ms;
 }
 
 :root.theme-dark {
   --brand: #5cc4d6;
   --brand-strong: #8fdce8;
-  --brand-soft: #123a42;
+  --brand-soft: #113840;
   --accent: #5cc4d6;
   --text: #e6eef0;
   --text-muted: #9db2ba;
-  --bg: #0f1a1d;
-  --surface: #16252a;
-  --border: #27393f;
-  --code-bg: #0f1a1d;
+  --bg: #0a1215;
+  --surface: #111c20;
+  --surface-2: #152328;
+  --border: #22343a;
+  --border-strong: #31484f;
+  --code-bg: #0c1619;
 
   --prio-alta: #ff8a7a;
   --prio-alta-soft: #3a1c19;
@@ -59,6 +80,7 @@
   --health-critico: #ff8a7a;
   --health-atencao: #f5b94e;
   --health-ok: #6fd08c;
+  --health-ok-soft: #15301f;
 
   --series-1: #5cc4d6;
   --series-2: #b39ddb;
@@ -66,4 +88,9 @@
   --series-4: #e09ccc;
   --series-5: #9ccc65;
   --series-6: #d7b98e;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
+  --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 6px 18px rgb(0 0 0 / 22%);
+  --shadow-lg: 0 18px 44px rgb(0 0 0 / 50%);
+  --action-bg: linear-gradient(135deg, #0f3038 0%, #12262c 100%);
 }

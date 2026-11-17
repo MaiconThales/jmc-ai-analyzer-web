@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -11,6 +10,7 @@ import { catchError, of } from 'rxjs';
 import { ENVIRONMENTS, Environment } from '../../core/api/models';
 import { SoftwareApi } from '../../core/api/software.api';
 import { AppConfigStore } from '../../core/config/app-config.store';
+import { Icon } from '../../shared/components/icon';
 import { BytesPipe } from '../../shared/pipes/format.pipes';
 import { MAX_DESCRIPTION, MAX_VERSION, SOFTWARE_PATTERN } from './upload-validation';
 import { UploadStore } from './upload.store';
@@ -26,9 +26,9 @@ import { UploadStore } from './upload.store';
     MatInputModule,
     MatAutocompleteModule,
     MatSelectModule,
-    MatButtonModule,
     MatProgressBarModule,
     BytesPipe,
+    Icon,
   ],
   templateUrl: './upload.page.html',
   styleUrl: './upload.page.scss',

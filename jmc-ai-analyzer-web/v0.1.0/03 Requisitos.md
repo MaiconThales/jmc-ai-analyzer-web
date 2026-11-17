@@ -69,7 +69,7 @@ Ordem fixa dos blocos (ver [[04 Telas e fluxos#Dashboard da gravação]]):
 
 ### RF-W07 — Navegação e estado global
 
-- Shell com barra superior (nome do produto e alternância de tema) e navegação lateral: Upload, Histórico, Softwares.
+- Shell com barra superior (nome do produto, saúde da API e alternância de tema) e navegação: Upload, Histórico, Softwares. **Os menus ficam fixos e só a área de conteúdo rola**; o menu lateral pode ser recolhido, vira trilho de ícones no tablet e barra inferior no celular. Ver [[04 Telas e fluxos#Shell]].
 - Indicador de saúde da API (`/actuator/health`), com aviso quando `blobStorage` ou `db` estiverem `DOWN`.
 - Página "não encontrado" para rotas e IDs inexistentes (`404`).
 
@@ -79,11 +79,12 @@ Ordem fixa dos blocos (ver [[04 Telas e fluxos#Dashboard da gravação]]):
 |---|---|
 | RNF-W01 | **Sonar**: sem issues *Blocker*, *Critical* ou *Major*; mesmo SonarQube da API. |
 | RNF-W02 | **Cobertura**: ≥ 90% de linhas e de branches nos testes unitários (Vitest + v8); o build falha abaixo disso. |
-| RNF-W03 | **Acessibilidade**: WCAG 2.1 AA; navegação por teclado; prioridade e estado nunca indicados só pela cor (sempre com texto ou ícone); gráficos com resumo em texto. |
+| RNF-W03 | **Acessibilidade**: WCAG 2.1 AA; navegação por teclado (ao trocar de tela, o foco vai para o conteúdo, que rola com PageDown/Espaço); prioridade e estado nunca indicados só pela cor (sempre com texto ou ícone); gráficos com resumo em texto. |
 | RNF-W04 | **Desempenho**: rotas *lazy*; ECharts carregado só nos dashboards; bundle inicial ≤ 500 kB (gzip); dashboard renderizado em ≤ 1 s após a resposta da API com `topN = 50`. |
 | RNF-W05 | **Segurança**: HTML dos achados só via sanitizador do Angular; nenhum dado sensível em `localStorage`; CSP no Nginx. |
 | RNF-W09 | **Navegadores**: todos os navegadores modernos (*evergreen*) suportados pelo Angular 22: Chrome, Edge, Firefox e Safari, desktop e mobile, nas versões que a CLI declara no `browserslist` padrão. |
 | RNF-W10 | **Identidade visual**: tokens, tipografia e componentes de [[09 Identidade visual]]. |
+| RNF-W11 | **Responsivo e animado**: de 360 px a monitores largos sem rolagem horizontal da página; tabelas largas rolam dentro do cartão; animações só em CSS, desligadas com `prefers-reduced-motion`. Ver [[09 Identidade visual#Movimento]]. |
 | RNF-W06 | **Idioma**: textos em pt-BR centralizados; datas no fuso do navegador, números no formato pt-BR. |
 | RNF-W07 | **Docker**: imagem Nginx sem estado; logs do Nginx em `${DATA_DIR}/frontend/logs` (regra de persistência no host da API). |
 | RNF-W08 | **Contrato**: os tipos da API são gerados do OpenAPI; teste de contrato falha se estiverem desatualizados. |

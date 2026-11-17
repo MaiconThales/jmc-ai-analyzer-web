@@ -1,6 +1,10 @@
+// Shell: barra superior e menu fixos; só <main> rola.
+// ≥ 1024 px: menu lateral com rótulos (pode recolher) · 640–1023 px: trilho de ícones · < 640 px: barra inferior.
+
 :host {
   display: block;
-  min-height: 100%;
+  height: 100vh; // fallback
+  height: 100dvh; // acompanha a barra de endereço do celular
 }
 
 .skip {
@@ -10,127 +14,396 @@
   &:focus {
     left: 16px;
     top: 8px;
-    z-index: 20;
+    z-index: 50;
     background: var(--surface);
     padding: 8px 12px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
   }
 }
 
-.toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 5;
+.shell {
+  --nav-w: 232px;
+  display: grid;
+  height: 100%;
+  grid-template-columns: var(--nav-w) minmax(0, 1fr);
+  grid-template-rows: var(--topbar-h) minmax(0, 1fr);
+  grid-template-areas:
+    'top top'
+    'nav main';
+  transition: grid-template-columns var(--dur) var(--ease);
+
+  &.collapsed {
+    --nav-w: 76px;
+  }
+}
+
+// ---------- barra superior ----------
+.topbar {
+  grid-area: top;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 8px 16px;
+  padding: 0 clamp(12px, 2vw, 20px);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+  z-index: 5;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  min-width: 0;
   color: var(--text);
   text-decoration: none;
 
-  span {
+  .mark {
     display: grid;
-    line-height: 1.2;
+    place-items: center;
+    border-radius: 10px;
+    transition: transform var(--dur) var(--ease);
+  }
+
+  &:hover .mark {
+    transform: rotate(-6deg) scale(1.05);
+  }
+}
+
+.brand-text {
+  display: grid;
+  line-height: 1.2;
+  min-width: 0;
+
+  strong {
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
   }
 
   small {
     color: var(--text-muted);
     font-size: 12px;
+    white-space: nowrap;
   }
 }
 
 .tools {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-size: 13px;
 }
 
 .api {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
   color: var(--health-ok);
+  background: var(--health-ok-soft);
+  white-space: nowrap;
+
+  .dot {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse-ring 2s var(--ease) infinite;
+    }
+  }
 
   &.down {
     color: var(--prio-alta);
+    background: var(--prio-alta-soft);
+  }
+
+  &.checking {
+    color: var(--text-muted);
+    background: var(--surface-2);
+
+    .dot::after {
+      animation: none;
+    }
   }
 }
 
 .theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font: inherit;
+  font-weight: 500;
   color: var(--text);
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
   cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+
+  &:hover {
+    background: var(--surface-2);
+    border-color: var(--border-strong);
+  }
+
+  app-icon {
+    transition: transform var(--dur) var(--ease);
+  }
+
+  &:active app-icon {
+    transform: rotate(-30deg);
+  }
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  min-height: calc(100vh - 57px);
-}
-
-nav {
-  display: grid;
-  align-content: start;
-  gap: 4px;
-  padding: 16px 8px;
-  border-right: 1px solid var(--border);
+// ---------- menu ----------
+.sidenav {
+  grid-area: nav;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 12px;
   background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow: hidden auto;
+  z-index: 4;
 
-  a {
-    color: var(--text);
+  a,
+  .collapse {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font: inherit;
+    font-weight: 600;
     text-decoration: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      background var(--dur-fast) var(--ease),
+      color var(--dur-fast) var(--ease);
 
     &:hover {
-      background: var(--brand-soft);
+      background: var(--surface-2);
+      color: var(--text);
     }
+  }
 
-    &.active {
-      background: var(--brand-soft);
-      color: var(--brand);
-      font-weight: 700;
+  a.active {
+    background: var(--brand-soft);
+    color: var(--brand);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--brand);
+      animation: grow-y var(--dur) var(--ease) backwards;
+    }
+  }
+
+  .collapse {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+
+    app-icon {
+      transition: transform var(--dur) var(--ease);
     }
   }
 }
 
+.nav-items {
+  display: grid;
+  gap: 4px;
+}
+
+.label {
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+// trilho de ícones: o rótulo sai da tela mas continua sendo o nome acessível
+@mixin rail {
+  .sidenav {
+    padding-inline: 12px;
+
+    a,
+    .collapse {
+      justify-content: center;
+      padding: 0;
+    }
+  }
+
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    opacity: 0;
+  }
+}
+
+.collapsed {
+  @include rail;
+
+  .collapse app-icon {
+    transform: scaleX(-1);
+  }
+}
+
+// ---------- conteúdo ----------
 main {
+  grid-area: main;
+  // contém os elementos absolutos (ex.: textos só para leitores de tela), senão eles esticam a janela
+  position: relative;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  background: var(--bg);
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .banner {
-  margin: 16px 16px 0;
-  border: 1px solid var(--prio-media);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: var(--page-max);
+  margin: 16px auto 0;
+  width: calc(100% - 2 * var(--page-pad));
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--prio-media) 40%, transparent);
   background: var(--prio-media-soft);
-  border-radius: var(--radius);
+  color: var(--text);
+  border-radius: var(--radius-sm);
   padding: 10px 16px;
+  animation: fade-down var(--dur-slow) var(--ease) backwards;
+
+  app-icon {
+    color: var(--prio-media);
+  }
 }
 
-@media (max-width: 720px) {
-  .layout {
-    grid-template-columns: 1fr;
+// ---------- tablet: trilho de ícones fixo ----------
+@media (max-width: 1023px) {
+  .shell,
+  .shell.collapsed {
+    --nav-w: 76px;
   }
 
-  nav {
-    grid-auto-flow: column;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-  }
+  @include rail;
 
-  .brand small {
+  .sidenav .collapse {
     display: none;
+  }
+}
+
+// ---------- celular: menu vira barra inferior ----------
+@media (max-width: 639px) {
+  .shell,
+  .shell.collapsed {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: var(--topbar-h) minmax(0, 1fr) auto;
+    grid-template-areas:
+      'top'
+      'main'
+      'nav';
+  }
+
+  .brand-text small,
+  .theme-text,
+  .api-text {
+    // fica só o ícone/ponto; o texto continua para leitores de tela
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .api {
+    padding: 8px;
+  }
+
+  .theme {
+    padding: 7px;
+  }
+
+  .sidenav {
+    flex-direction: row;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    border-right: none;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 16px rgb(0 0 0 / 4%);
+    overflow: visible;
+  }
+
+  .nav-items {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    width: 100%;
+  }
+
+  .sidenav a {
+    flex-direction: column;
+    gap: 2px;
+    min-height: 52px;
+    font-size: 11px;
+
+    &.active::before {
+      left: 30%;
+      right: 30%;
+      top: -6px;
+      bottom: auto;
+      width: auto;
+      height: 3px;
+      border-radius: 0 0 3px 3px;
+      animation-name: grow-x;
+    }
+  }
+
+  // na barra inferior o rótulo volta a aparecer, pequeno, abaixo do ícone
+  .label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .api .dot::after {
+    animation: none;
   }
 }

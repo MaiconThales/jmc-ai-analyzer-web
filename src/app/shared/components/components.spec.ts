@@ -5,6 +5,7 @@ import { ApiError } from '../../core/errors/api-error';
 import { AppFrame } from './app-frame';
 import { CopyButton } from './copy-button';
 import { HealthBadge } from './health-badge';
+import { Icon } from './icon';
 import { PriorityChip } from './priority-chip';
 import { StackTrace } from './stack-trace';
 import { EmptyState, ErrorState, LoadingState } from './states';
@@ -26,6 +27,7 @@ describe('componentes compartilhados', () => {
     expect(el.querySelector('.health')?.getAttribute('aria-label')).toBe('Nota de saúde 8 de 100, crítico');
     fixture.componentRef.setInput('compact', true);
     fixture.detectChanges();
+    expect(el.classList).toContain('compact');
     expect(el.textContent).not.toContain('nota de saúde');
     fixture.componentRef.setInput('score', null);
     fixture.detectChanges();
@@ -34,9 +36,12 @@ describe('componentes compartilhados', () => {
   });
 
   it('chips de prioridade e estado têm ícone e texto', () => {
-    expect(render(PriorityChip, { priority: 'MEDIA' }).el.textContent?.trim()).toBe('■ MÉDIA');
-    expect(render(StatusChip, { status: 'FAILED' }).el.textContent?.trim()).toBe('✗ Falhou');
+    expect(render(PriorityChip, { priority: 'MEDIA' }).el.textContent?.trim()).toBe('■MÉDIA');
+    const failed = render(StatusChip, { status: 'FAILED' }).el;
+    expect(failed.textContent?.trim()).toBe('Falhou');
+    expect(failed.querySelector('app-icon svg')).not.toBeNull();
     expect(render(StatusChip, { status: 'OUTRO' }).el.textContent?.trim()).toBe('OUTRO');
+    expect(render(StatusChip, { status: 'OUTRO' }).el.querySelector('app-icon')).toBeNull();
     expect(render(StatusChip, { status: null }).el.textContent?.trim()).toBe('—');
   });
 
@@ -86,6 +91,17 @@ describe('componentes compartilhados', () => {
     expect(retried).toHaveBeenCalled();
     expect(render(ErrorState, { error: ApiError.network(), retryable: false }).el.querySelector('button')).toBeNull();
     expect(render(LoadingState).el.textContent).toContain('Carregando');
+  });
+
+  it('ícone desenha caminhos, círculos e retângulos', () => {
+    const { el, fixture } = render(Icon, { name: 'copy', size: 20 });
+    expect(el.querySelector('svg')?.getAttribute('width')).toBe('20');
+    expect(el.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(el.querySelectorAll('rect')).toHaveLength(1);
+    expect(el.querySelectorAll('path')).toHaveLength(1);
+    fixture.componentRef.setInput('name', 'map-pin');
+    fixture.detectChanges();
+    expect(el.querySelectorAll('circle')).toHaveLength(1);
   });
 
   it('seletor de topN emite o valor escolhido', () => {

@@ -8,32 +8,33 @@
       @if (remote.error()?.properties?.['errorMessage']; as detail) {
         <p class="muted">{{ detail }}</p>
       }
-      <a routerLink="/history">Voltar ao histórico</a>
+      <a routerLink="/history" class="back-link">Voltar ao histórico <app-icon name="arrow-right" [size]="14" /></a>
     </div>
   } @else if (remote.error(); as error) {
     @if (error.code === 'NOT_FOUND') {
       <div class="panel" role="alert">
         <h1 class="page-title">Gravação não encontrada</h1>
-        <a routerLink="/history">Voltar ao histórico</a>
+        <a routerLink="/history" class="back-link">Voltar ao histórico <app-icon name="arrow-right" [size]="14" /></a>
       </div>
     } @else {
       <app-error-state [error]="error" (retry)="load()" />
     }
   } @else if (remote.data(); as d) {
-    <header class="dash-head">
+    <header class="page-head dash-head">
       <div>
-        <p class="crumb muted">{{ d.software }} {{ d.softwareVersion ?? '' }} · {{ d.metadata?.jvm?.name }} ·
-          {{ d.metadata?.durationMs | duration }}</p>
+        <p class="eyebrow"><app-icon name="file" [size]="14" /> Gravação · {{ d.software }} {{ d.softwareVersion ?? '' }}</p>
         <h1 class="page-title">{{ d.originalName }}</h1>
-        <a [routerLink]="['/batches', d.batchId, 'dashboard']">Ver o lote completo</a>
+        <p class="lead">{{ d.metadata?.jvm?.name }} · {{ d.metadata?.durationMs | duration }} gravados</p>
+        <a [routerLink]="['/batches', d.batchId, 'dashboard']" class="back-link">Ver o lote completo <app-icon name="arrow-right" [size]="14" /></a>
       </div>
       <div class="dash-actions">
-        <app-health-badge [score]="d.healthScore" />
         <app-topn-select [value]="effectiveTopN()" [options]="configStore.topNOptions()" (changed)="changeTopN($event)" />
       </div>
     </header>
 
     @if (model(); as m) {
+      <app-dashboard-summary [healthScore]="d.healthScore" [diagnosis]="m.diagnosis" [facts]="facts()" />
+      <app-section-nav [sections]="sections" />
       <app-diagnosis-list [items]="m.diagnosis" />
       <app-coverage-panel [coverage]="m.coverage" />
       <app-metrics-blocks [model]="m" />
@@ -41,8 +42,11 @@
     }
 
     <section id="metadata" class="panel block-gap" aria-labelledby="meta-title">
-      <details>
-        <summary><h2 id="meta-title">Metadados</h2></summary>
+      <details class="collapsible">
+        <summary>
+          <h2 id="meta-title" class="title-with-icon"><span class="icon-tile"><app-icon name="info" [size]="18" /></span> Metadados</h2>
+          <app-icon class="chev" name="chevron-down" [size]="20" />
+        </summary>
         <dl class="meta">
           <dt>JVM</dt><dd>{{ d.metadata?.jvm?.version }}</dd>
           <dt>Argumentos da JVM</dt><dd><code>{{ d.metadata?.jvm?.jvmArgs }}</code></dd>

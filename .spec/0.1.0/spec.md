@@ -127,7 +127,8 @@ Blocos, nesta ordem:
 ### RF-W07 — Shell e estado global
 
 - Barra superior com logo, indicador de saúde da API (`GET /actuator/health`, consultado a cada 30 s) e alternância de tema (padrão: preferência do sistema; escolha salva no `localStorage`).
-- Navegação lateral: Upload, Histórico, Softwares.
+- Navegação: Upload, Histórico, Softwares. Lateral com rótulos (recolhível, escolha salva no `localStorage`) a partir de 1024 px, trilho de ícones de 640 a 1023 px e barra inferior abaixo de 640 px.
+- **Menus fixos**: a barra superior e a navegação nunca rolam; só a área de conteúdo rola (âncoras, topo ao navegar e restauração de posição valem para essa área). Ao trocar de tela, o foco vai para a área de conteúdo, para o teclado rolar logo de cara.
 - Aviso global quando a API ou um componente (`db`, `blobStorage`) estiver `DOWN`.
 - Configuração carregada na inicialização: `GET /api/v1/config` e `/runtime-config.json`.
 
@@ -139,12 +140,13 @@ Blocos, nesta ordem:
 | RNF-W02 | **Cobertura**: ≥ 90% de linhas e de branches (Vitest + v8); `npm run test:ci` falha abaixo disso. |
 | RNF-W03 | **Acessibilidade**: WCAG 2.1 AA; navegação por teclado; foco visível; prioridade, saúde e cobertura sempre com ícone e texto, além da cor; cada gráfico com resumo em texto. |
 | RNF-W04 | **Desempenho**: rotas *lazy*; ECharts só nos dashboards; bundle inicial ≤ 500 kB gzip; dashboard com `topN=50` renderizado em ≤ 1 s após a resposta. |
-| RNF-W05 | **Segurança**: HTML dos achados só pelo `DomSanitizer` do Angular (`[innerHTML]`); `localStorage` só guarda o tema; CSP no Nginx. |
+| RNF-W05 | **Segurança**: HTML dos achados só pelo `DomSanitizer` do Angular (`[innerHTML]`); `localStorage` só guarda o tema e o menu recolhido; CSP no Nginx. |
 | RNF-W06 | **Idioma e formatos**: textos pt-BR centralizados; locale `pt-BR`; datas no fuso do navegador. |
 | RNF-W07 | **Docker**: imagem Nginx sem estado; logs em `${DATA_DIR}/frontend/logs`. |
 | RNF-W08 | **Contrato**: tipos gerados do OpenAPI da API; teste de contrato acusa divergência. |
 | RNF-W09 | **Navegadores**: modernos (*evergreen*): `browserslist` padrão do Angular 22 (Chrome, Edge, Firefox, Safari; desktop e mobile). |
 | RNF-W10 | **Identidade visual**: tokens, tipografia e componentes da §7. |
+| RNF-W11 | **Responsivo e animado**: telas de 360 px a monitores largos sem rolagem horizontal da página (tabelas largas rolam dentro do cartão); animações só em CSS (`transform`/`opacity`), desligadas com `prefers-reduced-motion`; sem animação o conteúdo continua visível. |
 
 ## 6. Mensagens de erro
 

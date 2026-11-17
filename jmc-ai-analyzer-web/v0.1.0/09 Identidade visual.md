@@ -19,7 +19,7 @@ Prévia navegável: `assets/identidade-preview.html` (abra no navegador). Ela te
 
 1. **A resposta vem primeiro.** Todo cartão termina numa **ação** começando por verbo ("Remova", "Reduza", "Grave"). Números são evidência, não manchete.
 2. **Cor é significado.** Vermelho, âmbar e verde ficam reservados para prioridade, saúde e cobertura. A marca nunca usa essas cores, e nenhum estado depende só da cor: sempre há ícone e texto.
-3. **Código é cidadão de primeira.** O `appFrame` aparece em fonte monoespaçada, com 📍 "seu código", copiável. Pacotes longos ficam recolhidos.
+3. **Código é cidadão de primeira.** O `appFrame` aparece em fonte monoespaçada, com o ícone de alfinete e "seu código", em destaque azul-petróleo e copiável. Pacotes longos ficam recolhidos; na pilha, os frames do JDK ficam atenuados e o da aplicação, destacado.
 4. **Densidade calma.** Muito espaço em branco, um único destaque por cartão e gráficos sem enfeites (sem 3D, sem pizza, sem gradiente decorativo).
 5. **Linguagem humana.** Português direto, sem jargão desnecessário. Termos técnicos (`-XX:...`, nomes de classe) ficam em monoespaçado. O texto original do JMC fica disponível em "achados do JMC", nunca escondido.
 
@@ -48,7 +48,10 @@ Contraste conferido (WCAG 2.1) sobre a superfície de cada tema. Todos os textos
 | `--accent` | `#5CC4D6` | detalhes do logo e realces (nunca texto) | — |
 | `--text` | `#14232A` | texto principal | 16,1:1 |
 | `--text-muted` | `#4E626B` | texto secundário | 6,4:1 |
-| `--bg` / `--surface` | `#F7F9FA` / `#FFFFFF` | fundo e cartões | — |
+| `--bg` / `--surface` | `#F3F6F7` / `#FFFFFF` | fundo e cartões | — |
+| `--surface-2` | `#F6F9FA` | cabeçalho de tabela, chips, áreas internas | — |
+| `--border` / `--border-strong` | `#DDE5E8` / `#C5D2D7` | divisórias / campos e hover | — |
+| `--health-ok-soft` | `#E6F4EA` | fundo de "API ok", "Concluído" e arquivo válido | — |
 | `--prio-alta`, `--health-critico` | `#B42318` | ALTA, saúde < 40, cobertura AUSENTE | 6,6:1 |
 | `--prio-media`, `--health-atencao` | `#9A5B00` | MÉDIA, saúde 40–74, INSUFICIENTE | 5,4:1 |
 | `--prio-baixa` | `#3E5C68` | BAIXA | 7,2:1 |
@@ -60,7 +63,8 @@ Contraste conferido (WCAG 2.1) sobre a superfície de cada tema. Todos os textos
 |---|---|---|
 | `--brand` | `#5CC4D6` | 7,8:1 |
 | `--text` / `--text-muted` | `#E6EEF0` / `#9DB2BA` | 13,4:1 / 7,1:1 |
-| `--bg` / `--surface` | `#0F1A1D` / `#16252A` | — |
+| `--bg` / `--surface` / `--surface-2` | `#0A1215` / `#111C20` / `#152328` | — |
+| `--border` / `--border-strong` | `#22343A` / `#31484F` | — |
 | `--prio-alta` | `#FF8A7A` | 6,9:1 |
 | `--prio-media` | `#F5B94E` | 9,0:1 |
 | `--prio-baixa` | `#9FB8C2` | 7,6:1 |
@@ -82,24 +86,46 @@ Paleta categórica para as linhas de cada gravação no dashboard do lote, sem u
 
 As duas fontes são livres (SIL OFL) e ficam **empacotadas no app** (`@fontsource/inter`, `@fontsource/jetbrains-mono`), sem CDN externo.
 
+## Superfícies, sombras e ícones
+
+- **Cartões** (`.panel`, `.kpi`, `.card`): raio de 14 px, borda de 1 px e sombra leve (`--shadow-sm`); no hover, sombra `--shadow` e subida de 2 px nos KPIs.
+- **KPIs** (inspirados no simulador de telemetria): rótulo pequeno, valor em JetBrains Mono e uma faixa à esquerda na cor do significado (alta, média, baixa, ok ou neutro).
+- **Ícones**: SVG próprios de traço (24×24, `currentColor`) no componente `app-icon`; nunca sozinhos quando carregam significado (sempre com texto ou `aria-label`).
+- **Botões**: `.btn` (neutro), `.btn.primary` (marca, com sombra suave) e `.btn.ghost` (link com fundo no hover).
+
+## Movimento
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--ease` | `cubic-bezier(0.2, 0.8, 0.2, 1)` | todas as transições |
+| `--dur-fast` / `--dur` / `--dur-slow` | 140 / 220 / 380 ms | hover · troca de estado · entrada de tela |
+
+- **Entrada de tela**: o conteúdo desliza 8 px para cima e aparece; cartões, linhas e KPIs entram em cascata (45 ms entre itens, até 12).
+- **Selo de saúde**: o anel "enche" até a nota ao aparecer (com `@property`; sem suporte, mostra o valor final).
+- **Estados**: esqueleto com brilho no carregamento; ícone girando em "Processando"; ponto pulsando em "API ok".
+- **Regras**: só `transform` e `opacity`; preenchimento `backwards` (depois de terminar, a animação não deixa `transform` aplicado, o que quebraria diálogos `fixed`); tudo desligado com `prefers-reduced-motion: reduce`.
+
 ## Componentes-chave
 
 ### Cartão de diagnóstico
 
 ```text
-┃ ▲ ALTA   AMBIENTE                                   ← chip de prioridade + categoria
+┃ ▲ ALTA   AMBIENTE   em 2 de 3 gravações            ← chip de prioridade + categoria (+ alcance no lote)
 ┃ Outros processos consumindo CPU                     ← título (o problema)
 ┃ 43% da CPU foi usada por outros processos.          ← evidência (texto secundário)
-┃ 📍 seu código: HexaUtil.converteString:23  [pilha▸] ← local (monoespaçado), quando houver
-┃ ➜ Grave num ambiente isolado.                       ← ação (verbo no início)
-┃ ver dados de CPU ↓                                  ← link para o bloco (domainRef)
+┃ 📍 seu código: HexaUtil.converteString:23 [Copiar]  ← local (monoespaçado, destacado), quando houver
+┃ ▸ pilha (5)                                         ← pilha recolhível, frame da aplicação destacado
+┃ ┌ → COMO ARRUMAR ─────────────────────────┐         ← ação (verbo no início) em bloco próprio
+┃ │ Grave num ambiente isolado.              │
+┃ └──────────────────────────────────────────┘
+┃ ver dados ↓   app-1.jfr   app-2.jfr                 ← link para o bloco (domainRef) e gravações
 ```
 
-A borda esquerda e o chip usam a cor da prioridade; o resto do cartão é neutro.
+A faixa esquerda e o chip usam a cor da prioridade; nos itens ALTA, um degradê muito leve da cor entra pela esquerda. O resto do cartão é neutro. Acima da lista, um **filtro** (Todas · ALTA · MÉDIA · BAIXA, com contagem) mostra só uma prioridade.
 
 ### Selo de saúde
 
-Anel com a nota no centro e o rótulo ao lado: **crítico** (< 40), **atenção** (40–74) ou **ok** (≥ 75). As faixas foram confirmadas na WQ5.
+Anel com a nota no centro (monoespaçada) e o rótulo ao lado: **crítico** (< 40), **atenção** (40–74) ou **ok** (≥ 75). As faixas foram confirmadas na WQ5. A versão compacta (tabelas) mostra só o anel menor.
 
 ### Estados vazios
 

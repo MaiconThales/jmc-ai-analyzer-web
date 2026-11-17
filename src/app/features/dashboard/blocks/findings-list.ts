@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import type { FindingView } from '../../../core/api/models';
+import { Icon } from '../../../shared/components/icon';
 
 const SEVERITY_LABEL: Record<string, string> = { WARNING: 'Aviso', INFO: 'Informação', OK: 'OK' };
 
@@ -7,10 +8,16 @@ const SEVERITY_LABEL: Record<string, string> = { WARNING: 'Aviso', INFO: 'Inform
 @Component({
   selector: 'app-findings-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [Icon],
   template: `
     <section id="findings" class="panel" aria-labelledby="findings-title">
-      <details>
-        <summary><h2 id="findings-title">Achados do JMC ({{ findings().length }})</h2></summary>
+      <details class="collapsible">
+        <summary>
+          <h2 id="findings-title" class="title-with-icon">
+            <span class="icon-tile"><app-icon name="list" [size]="18" /></span> Achados do JMC ({{ findings().length }})
+          </h2>
+          <app-icon class="chev" name="chevron-down" [size]="20" />
+        </summary>
         <p class="muted">Texto original das regras do Java Mission Control.</p>
         <ul class="findings">
           @for (f of findings(); track f.ruleId) {

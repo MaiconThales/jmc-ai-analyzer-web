@@ -33,7 +33,8 @@ describe('blocos do dashboard', () => {
     expect(content).toContain('JVM limitada a menos processadores que a máquina');
     expect(content).toContain('Thread com maior volume de alocação');
     expect(content).toContain('seu código');
-    expect(content).toMatch(/➜/);
+    expect(content).toContain('Como arrumar');
+    expect(el.querySelectorAll('.action').length).toBeGreaterThan(0);
     expect(el.querySelector('a[href$="#allocation"]')).not.toBeNull();
     expect(el.querySelector('.spread')).toBeNull();
   });

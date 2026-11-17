@@ -1,11 +1,17 @@
 @let m = model();
 
+<div class="metrics">
+
 <section id="cpu" class="panel block" aria-labelledby="cpu-title">
   <header class="block-head">
-    <h2 id="cpu-title">CPU</h2>
+    <h2 id="cpu-title" class="title-with-icon"><span class="icon-tile"><app-icon name="cpu" [size]="18" /></span> CPU</h2>
     @if (m.cpu.available) {
-      <span class="kpis">JVM média {{ m.cpu.jvmAvg | fraction }} · pico {{ m.cpu.jvmMax | fraction }} · máquina média
-        {{ m.cpu.machineAvg | fraction }} · pico {{ m.cpu.machineMax | fraction }}</span>
+      <ul class="stats">
+        <li>JVM média <b>{{ m.cpu.jvmAvg | fraction }}</b></li>
+        <li>pico <b>{{ m.cpu.jvmMax | fraction }}</b></li>
+        <li>máquina média <b>{{ m.cpu.machineAvg | fraction }}</b></li>
+        <li>pico <b>{{ m.cpu.machineMax | fraction }}</b></li>
+      </ul>
     }
   </header>
   @if (m.cpu.available) {
@@ -17,10 +23,13 @@
 
 <section id="heap" class="panel block" aria-labelledby="heap-title">
   <header class="block-head">
-    <h2 id="heap-title">Heap</h2>
+    <h2 id="heap-title" class="title-with-icon"><span class="icon-tile"><app-icon name="memory" [size]="18" /></span> Heap</h2>
     @if (m.heap.available) {
-      <span class="kpis">pico {{ m.heap.usedPeakBytes | bytes }} de {{ m.heap.maxBytes | bytes }} · inicial
-        {{ m.heap.initialBytes | bytes }} · coletores {{ m.heap.youngCollector ?? '—' }} / {{ m.heap.oldCollector ?? '—' }}</span>
+      <ul class="stats">
+        <li>pico <b>{{ m.heap.usedPeakBytes | bytes }}</b> de {{ m.heap.maxBytes | bytes }}</li>
+        <li>inicial <b>{{ m.heap.initialBytes | bytes }}</b></li>
+        <li>coletores <b>{{ m.heap.youngCollector ?? '—' }} / {{ m.heap.oldCollector ?? '—' }}</b></li>
+      </ul>
     }
   </header>
   @if (m.heap.available) {
@@ -32,13 +41,18 @@
 
 <section id="gc" class="panel block" aria-labelledby="gc-title">
   <header class="block-head">
-    <h2 id="gc-title">GC</h2>
+    <h2 id="gc-title" class="title-with-icon"><span class="icon-tile"><app-icon name="recycle" [size]="18" /></span> GC</h2>
     @if (m.gc?.available) {
-      <span class="kpis">{{ m.gc?.count | count }} coletas · p95 {{ m.gc?.pauseP95Ms | duration }} · máxima
-        {{ m.gc?.pauseMaxMs | duration }} · {{ m.gc?.pausePct | percent1: 2 }} do tempo em pausa</span>
+      <ul class="stats">
+        <li><b>{{ m.gc?.count | count }}</b> coletas</li>
+        <li>p95 <b>{{ m.gc?.pauseP95Ms | duration }}</b></li>
+        <li>máxima <b>{{ m.gc?.pauseMaxMs | duration }}</b></li>
+        <li><b>{{ m.gc?.pausePct | percent1: 2 }}</b> do tempo em pausa</li>
+      </ul>
     }
   </header>
   @if (m.gc?.available) {
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
     <table class="data compact">
       <caption class="sr-only">Maiores pausas de GC</caption>
       <thead><tr><th scope="col">Início</th><th scope="col">Coletor</th><th scope="col">Causa</th><th scope="col" class="num">Pausa</th></tr></thead>
@@ -53,6 +67,7 @@
         }
       </tbody>
     </table>
+    </div>
   } @else {
     <ng-container *ngTemplateOutlet="unavailable" />
   }
@@ -60,10 +75,14 @@
 
 <section id="threads" class="panel block" aria-labelledby="threads-title">
   <header class="block-head">
-    <h2 id="threads-title">Threads</h2>
+    <h2 id="threads-title" class="title-with-icon"><span class="icon-tile"><app-icon name="layers" [size]="18" /></span> Threads</h2>
     @if (m.threads.available) {
-      <span class="kpis">pico {{ m.threads.peak | count }} · daemon {{ m.threads.daemonPeak | count }} · criadas
-        {{ m.threads.started | count }} · encerradas {{ m.threads.ended | count }}</span>
+      <ul class="stats">
+        <li>pico <b>{{ m.threads.peak | count }}</b></li>
+        <li>daemon <b>{{ m.threads.daemonPeak | count }}</b></li>
+        <li>criadas <b>{{ m.threads.started | count }}</b></li>
+        <li>encerradas <b>{{ m.threads.ended | count }}</b></li>
+      </ul>
     }
   </header>
   @if (m.threads.available) {
@@ -73,15 +92,16 @@
   }
 </section>
 
-<section id="hotMethods" class="panel block" aria-labelledby="hot-title">
+<section id="hotMethods" class="panel block full" aria-labelledby="hot-title">
   <header class="block-head">
-    <h2 id="hot-title">Hot methods</h2>
+    <h2 id="hot-title" class="title-with-icon"><span class="icon-tile"><app-icon name="flame" [size]="18" /></span> Hot methods</h2>
     @if (m.hotMethods?.available) {
-      <span class="kpis">{{ m.hotMethods?.totalSamples | count }} amostras de CPU</span>
+      <ul class="stats"><li><b>{{ m.hotMethods?.totalSamples | count }}</b> amostras de CPU</li></ul>
     }
   </header>
   @if (m.hotMethods?.available) {
     <app-ranking-bar-chart [items]="hotItems()" unit="count" ariaLabel="Métodos mais amostrados" />
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
     <table class="data compact">
       <thead><tr><th scope="col">Método</th><th scope="col" class="num">%</th><th scope="col">Seu código</th></tr></thead>
       <tbody>
@@ -94,20 +114,22 @@
         }
       </tbody>
     </table>
+    </div>
   } @else {
     <ng-container *ngTemplateOutlet="unavailable" />
   }
 </section>
 
-<section id="allocation" class="panel block" aria-labelledby="alloc-title">
+<section id="allocation" class="panel block full" aria-labelledby="alloc-title">
   <header class="block-head">
-    <h2 id="alloc-title">Alocação</h2>
+    <h2 id="alloc-title" class="title-with-icon"><span class="icon-tile"><app-icon name="box" [size]="18" /></span> Alocação</h2>
     @if (m.allocation?.available) {
-      <span class="kpis">taxa {{ m.allocation?.rateBytesPerSec | bytes: '/s' }}</span>
+      <ul class="stats"><li>taxa <b>{{ m.allocation?.rateBytesPerSec | bytes: '/s' }}</b></li></ul>
     }
   </header>
   @if (m.allocation?.available) {
     <app-ranking-bar-chart [items]="allocationItems()" unit="bytes" ariaLabel="Classes mais alocadas" />
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
     <table class="data compact">
       <thead><tr><th scope="col">Classe</th><th scope="col" class="num">Alocado</th><th scope="col">Seu código</th></tr></thead>
       <tbody>
@@ -120,14 +142,16 @@
         }
       </tbody>
     </table>
+    </div>
   } @else {
     <ng-container *ngTemplateOutlet="unavailable" />
   }
 </section>
 
-<section id="locks" class="panel block" aria-labelledby="locks-title">
-  <header class="block-head"><h2 id="locks-title">Locks</h2></header>
+<section id="locks" class="panel block full" aria-labelledby="locks-title">
+  <header class="block-head"><h2 id="locks-title" class="title-with-icon"><span class="icon-tile"><app-icon name="lock" [size]="18" /></span> Locks</h2></header>
   @if (m.locks?.available) {
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
     <table class="data compact">
       <thead>
         <tr><th scope="col">Tipo</th><th scope="col">Classe</th><th scope="col" class="num">Eventos</th><th scope="col" class="num">Total</th>
@@ -146,20 +170,22 @@
         }
       </tbody>
     </table>
+    </div>
   } @else {
     <ng-container *ngTemplateOutlet="unavailable" />
   }
 </section>
 
-<section id="exceptions" class="panel block" aria-labelledby="exc-title">
+<section id="exceptions" class="panel block full" aria-labelledby="exc-title">
   <header class="block-head">
-    <h2 id="exc-title">Exceções</h2>
+    <h2 id="exc-title" class="title-with-icon"><span class="icon-tile"><app-icon name="zap" [size]="18" /></span> Exceções</h2>
     @if (m.exceptions?.available) {
-      <span class="kpis">{{ m.exceptions?.throwablesTotal | count }} throwables na gravação</span>
+      <ul class="stats"><li><b>{{ m.exceptions?.throwablesTotal | count }}</b> throwables na gravação</li></ul>
     }
   </header>
   @if (m.exceptions?.available) {
     <app-ranking-bar-chart [items]="exceptionItems()" unit="count" ariaLabel="Exceções mais lançadas" />
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
     <table class="data compact">
       <thead><tr><th scope="col">Classe</th><th scope="col" class="num">Quantidade</th><th scope="col">Exemplo</th><th scope="col">Seu código</th></tr></thead>
       <tbody>
@@ -173,14 +199,15 @@
         }
       </tbody>
     </table>
+    </div>
   } @else {
     <ng-container *ngTemplateOutlet="unavailable" />
   }
 </section>
 
-<section id="io" class="panel block" aria-labelledby="io-title">
+<section id="io" class="panel block full" aria-labelledby="io-title">
   <header class="block-head">
-    <h2 id="io-title">I/O</h2>
+    <h2 id="io-title" class="title-with-icon"><span class="icon-tile"><app-icon name="hard-drive" [size]="18" /></span> I/O</h2>
     <span class="kpis">somente operações lentas (acima do limiar da gravação)</span>
   </header>
   @if (m.io?.available) {
@@ -189,6 +216,7 @@
         <li>{{ ioLabel[t.type] ?? t.type }}: {{ t.count | count }} operações · {{ t.bytes | bytes }} · {{ t.totalMs | duration }}</li>
       }
     </ul>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
     <table class="data compact">
       <thead>
         <tr><th scope="col">Tipo</th><th scope="col">Alvo</th><th scope="col" class="num">Operações</th><th scope="col" class="num">Total</th>
@@ -206,17 +234,19 @@
         }
       </tbody>
     </table>
+    </div>
   } @else {
     <ng-container *ngTemplateOutlet="unavailable" />
   }
 </section>
 
-<section id="leakSuspects" class="panel block" aria-labelledby="leak-title">
+<section id="leakSuspects" class="panel block full" aria-labelledby="leak-title">
   <header class="block-head">
-    <h2 id="leak-title">Suspeitos de vazamento</h2>
+    <h2 id="leak-title" class="title-with-icon"><span class="icon-tile"><app-icon name="droplet" [size]="18" /></span> Suspeitos de vazamento</h2>
     <span class="kpis">objetos antigos ainda vivos, com a pilha de quem alocou</span>
   </header>
   @if (m.leakSuspects?.available) {
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
     <table class="data compact">
       <thead><tr><th scope="col">Classe</th><th scope="col" class="num">Amostras</th><th scope="col" class="num">Idade máx.</th><th scope="col">Seu código</th></tr></thead>
       <tbody>
@@ -230,13 +260,14 @@
         }
       </tbody>
     </table>
+    </div>
   } @else {
     <ng-container *ngTemplateOutlet="unavailable" />
   }
 </section>
 
-<section id="threadCpu" class="panel block" aria-labelledby="tcpu-title">
-  <header class="block-head"><h2 id="tcpu-title">CPU por thread</h2></header>
+<section id="threadCpu" class="panel block full" aria-labelledby="tcpu-title">
+  <header class="block-head"><h2 id="tcpu-title" class="title-with-icon"><span class="icon-tile"><app-icon name="activity" [size]="18" /></span> CPU por thread</h2></header>
   @if (m.threadCpu?.available) {
     <app-ranking-bar-chart [items]="threadCpuItems()" unit="fraction" ariaLabel="Threads com maior uso de CPU" />
   } @else {
@@ -244,7 +275,9 @@
   }
 </section>
 
+</div>
+
 <ng-template #unavailable>
-  <p class="muted unavailable">Sem dados nesta gravação. <a [routerLink]="[]" fragment="coverage" queryParamsHandling="preserve">Veja a cobertura</a>
-    para saber como gravar.</p>
+  <p class="muted unavailable"><app-icon name="info" [size]="16" /> <span>Sem dados nesta gravação. <a [routerLink]="[]" fragment="coverage" queryParamsHandling="preserve">Veja a cobertura</a>
+    para saber como gravar.</span></p>
 </ng-template>

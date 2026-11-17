@@ -31,6 +31,7 @@ flowchart LR
     W07 --> W10[W10 Qualidade e E2E]
     W08 --> W10
     W09 --> W10
+    W10 --> W11[W11 Acabamento visual]
 ```
 
 ---
@@ -127,12 +128,25 @@ flowchart LR
 - [ ] **T-W10.5 — Revisão final**: conferir CA-W01 a CA-W14 e atualizar as notas Obsidian e este SDD se algo mudou.
   - **Dep**: todas · **Pronto quando**: checklist abaixo completo.
 
+## W11 — Acabamento visual (W-D13)
+
+- [x] **T-W11.1 — Shell com menus fixos**: só a área de conteúdo rola; menu recolhível (≥ 1024 px), trilho (640–1023 px) e barra inferior (< 640 px); `ContentScroller` para âncoras, topo e restauração.
+  - **Pronto quando**: em 360, 768, 1024, 1440 px e em paisagem baixa, a janela não rola e a página não tem rolagem horizontal.
+- [x] **T-W11.2 — Tokens, superfícies, ícones e movimento**: `--surface-2`, bordas, sombras, tokens de movimento, `app-icon`, `@keyframes`, `prefers-reduced-motion`.
+  - **Pronto quando**: axe sem violações graves nos dois temas.
+- [x] **T-W11.3 — Componentes compartilhados**: selo de saúde animado (e o modo compacto corrigido), chips com ícone, estados com esqueleto, pilha com frame da aplicação destacado, botão copiar com ícone.
+- [x] **T-W11.4 — Telas**: upload em 2 passos com área de soltar animada; histórico e softwares com filtros em painel e tabela que vira cartões no celular; diálogo animado (fecha com Esc); status do lote com barra de progresso e KPIs.
+- [x] **T-W11.5 — Dashboards**: resumo de relance, barra de seções fixa, filtro por prioridade, bloco "Como arrumar", métricas em 2 colunas (≥ 1200 px) com números em chips.
+  - **Pronto quando**: "ver dados ↓" e a barra de seções levam ao bloco certo, logo abaixo da barra.
+
 ---
 
 ## Situação da implementação (2026-11-17)
 
-- Implementado: W01 a W10 (exceto a execução no SonarQube).
-- Unitários: 21 arquivos, 98,4% de statements, 94,5% de branches, 99,1% de linhas; `npm run verify` aprova (lint, testes com limite de 90% e build).
+- Implementado: W01 a W11 (exceto a execução no SonarQube).
+- Unitários: 23 arquivos e 87 testes, 98,3% de statements, 94,4% de branches, 99,1% de linhas; `npm run verify` aprova (lint, testes com limite de 90% e build).
+- W11 conferido no Chrome em 375, 768, 812×375, 1024 e 1440 px, nos dois temas, com axe sem violações nas 6 telas. Firefox e Safari não foram testados automaticamente (só o Chrome está disponível para o Playwright aqui); as funções novas de CSS têm alternativa ou são só realce.
+- E2E rodados de novo depois do W11 (contra o Compose, porta 4200): 8 de 8 passaram; depois, um 9º cenário confere que o CSS global carrega com a CSP.
 - E2E (Playwright, contra o Compose da API com o front): 8 cenários cobrindo CA-W01 a CA-W09, CA-W12 (axe nos dois temas), CA-W13 e CA-W14.
 - Desempenho: carregamento inicial de 92 kB (gzip); dashboard com `topN=50` renderizado em 150–210 ms após a resposta.
 - Contrato: `npm run api:check` em dia com a API.

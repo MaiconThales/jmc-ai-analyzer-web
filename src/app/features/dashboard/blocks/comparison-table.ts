@@ -2,16 +2,23 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { ComparisonRow } from '../../../core/api/models';
 import { HealthBadge } from '../../../shared/components/health-badge';
+import { Icon } from '../../../shared/components/icon';
 import { DurationPipe, FractionPipe } from '../../../shared/pipes/format.pipes';
 
 /** Comparativo do lote: uma linha por gravação. */
 @Component({
   selector: 'app-comparison-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, HealthBadge, DurationPipe, FractionPipe],
+  imports: [RouterLink, HealthBadge, Icon, DurationPipe, FractionPipe],
   template: `
     <section id="comparison" class="panel" aria-labelledby="comparison-title">
-      <h2 id="comparison-title">Comparativo</h2>
+      <header class="block-head">
+        <h2 id="comparison-title" class="title-with-icon">
+          <span class="icon-tile"><app-icon name="chart" [size]="18" /></span> Comparativo
+        </h2>
+        <span class="kpis">uma linha por gravação do lote</span>
+      </header>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
       <table class="data compact">
         <thead>
           <tr>
@@ -36,6 +43,7 @@ import { DurationPipe, FractionPipe } from '../../../shared/pipes/format.pipes';
           }
         </tbody>
       </table>
+      </div>
     </section>
   `,
   styleUrl: './blocks.scss',

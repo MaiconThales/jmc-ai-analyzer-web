@@ -148,3 +148,28 @@ export function countByPriority(items: DiagnosisView[]): Record<Priority, number
   });
   return counts;
 }
+
+/** Seções do dashboard, na ordem da página (âncoras = ids dos blocos). */
+const METRIC_SECTIONS = [
+  { id: 'coverage', label: 'Cobertura' },
+  { id: 'cpu', label: 'CPU' },
+  { id: 'heap', label: 'Heap' },
+  { id: 'gc', label: 'GC' },
+  { id: 'threads', label: 'Threads' },
+  { id: 'hotMethods', label: 'Hot methods' },
+  { id: 'allocation', label: 'Alocação' },
+  { id: 'locks', label: 'Locks' },
+  { id: 'exceptions', label: 'Exceções' },
+  { id: 'io', label: 'I/O' },
+  { id: 'leakSuspects', label: 'Vazamentos' },
+  { id: 'threadCpu', label: 'CPU por thread' },
+  { id: 'findings', label: 'Achados JMC' },
+];
+
+export const RECORDING_SECTIONS = [
+  { id: 'diagnosis', label: 'O que arrumar' },
+  ...METRIC_SECTIONS,
+  { id: 'metadata', label: 'Metadados' },
+];
+
+export const BATCH_SECTIONS = [{ id: 'diagnosis', label: 'O que arrumar' }, { id: 'comparison', label: 'Comparativo' }, ...METRIC_SECTIONS];

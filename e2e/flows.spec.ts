@@ -88,6 +88,15 @@ test.describe('fluxos principais', () => {
 });
 
 test.describe('configuração e falhas', () => {
+  test('estilos globais carregam com a CSP do Nginx (sem script inline)', async ({ page }) => {
+    const blocked: string[] = [];
+    page.on('console', (m) => m.type() === 'error' && /Content Security Policy/i.test(m.text()) && blocked.push(m.text()));
+    await page.goto('/upload');
+    await expect(page.locator('.panel').first()).toHaveCSS('border-radius', '14px');
+    await expect(page.locator('button.primary').first()).toHaveCSS('min-height', '46px');
+    expect(blocked).toEqual([]);
+  });
+
   test('CA-W13: limites vêm da API sem rebuild', async ({ page }) => {
     await page.route('**/api/v1/config', (route) =>
       route.fulfill({

@@ -1,24 +1,33 @@
 <div class="page">
-  <header class="head">
-    <h1 class="page-title">Histórico</h1>
+  <header class="page-head">
+    <div>
+      <p class="eyebrow"><app-icon name="history" [size]="14" /> Análises</p>
+      <h1 class="page-title">Histórico</h1>
+      <p class="lead">Lotes enviados, do mais recente para o mais antigo. Clique no software para abrir o diagnóstico.</p>
+    </div>
+    <a routerLink="/upload" class="btn primary"><app-icon name="plus" [size]="16" /> Nova análise</a>
+  </header>
+
+  <div class="toolbar panel reveal">
+    <span class="title-with-icon muted"><app-icon name="filter" [size]="16" /> Filtros</span>
     <div class="filters">
-      <label>Software
-        <select (change)="filter($event)" data-testid="software-filter">
+      <label class="field-label">Software
+        <select class="control" (change)="filter($event)" data-testid="software-filter">
           <option value="" [selected]="!software()">todos</option>
           @for (s of softwareOptions(); track s.name) {
             <option [value]="s.name" [selected]="s.name === software()">{{ s.name }}</option>
           }
         </select>
       </label>
-      <label>Por página
-        <select (change)="changeSize($event)">
+      <label class="field-label">Por página
+        <select class="control" (change)="changeSize($event)">
           @for (size of pageSizes; track size) {
             <option [value]="size" [selected]="size === currentSize()">{{ size }}</option>
           }
         </select>
       </label>
     </div>
-  </header>
+  </div>
 
   @if (remote.loading()) {
     <app-loading-state label="Carregando o histórico" />
@@ -26,48 +35,62 @@
     <app-error-state [error]="error" (retry)="load()" />
   } @else if (remote.data(); as data) {
     @if (data.content.length) {
-      <table class="data">
-        <caption class="sr-only">Lotes enviados, do mais recente para o mais antigo</caption>
-        <thead>
-          <tr>
-            <th scope="col">Data</th>
-            <th scope="col">Software</th>
-            <th scope="col">Versão</th>
-            <th scope="col">Ambiente</th>
-            <th scope="col">Descrição</th>
-            <th scope="col" class="num">Arquivos</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Saúde</th>
-            <th scope="col" class="num">Itens ALTA</th>
-            <th scope="col" class="num">Avisos JMC</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of data.content; track item.batchId) {
-            <tr>
-              <td><a [routerLink]="link(item)" [title]="item.createdAt | dateTime">{{ item.createdAt | relative }}</a></td>
-              <td>{{ item.software }}</td>
-              <td>{{ item.softwareVersion ?? '—' }}</td>
-              <td>{{ item.environment ?? '—' }}</td>
-              <td class="desc">{{ item.description ?? '' }}</td>
-              <td class="num">{{ item.fileCount }}</td>
-              <td><app-status-chip [status]="item.status" /></td>
-              <td><app-health-badge [score]="item.healthScore" [compact]="true" /></td>
-              <td class="num">{{ item.highPriorityItems }}</td>
-              <td class="num">{{ item.warningFindings }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <div class="panel table-panel reveal" style="--i: 1">
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Tabela com rolagem horizontal">
+          <table class="data stack">
+            <caption class="sr-only">Lotes enviados, do mais recente para o mais antigo</caption>
+            <thead>
+              <tr>
+                <th scope="col">Software</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Enviado</th>
+                <th scope="col" class="num">Arquivos</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Saúde</th>
+                <th scope="col" class="num">Itens ALTA</th>
+                <th scope="col" class="num">Avisos JMC</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of data.content; track item.batchId; let i = $index) {
+                <tr class="reveal" [style.--i]="i + 2">
+                  <td data-label="Software">
+                    <a class="sw" [routerLink]="link(item)">{{ item.software }}</a>
+                    <span class="tags">
+                      @if (item.softwareVersion) {
+                        <span class="tag">v{{ item.softwareVersion }}</span>
+                      }
+                      @if (item.environment) {
+                        <span class="tag env">{{ item.environment }}</span>
+                      }
+                    </span>
+                  </td>
+                  <td data-label="Descrição" class="desc wide">{{ item.description ?? '' }}</td>
+                  <td data-label="Enviado"><span [title]="item.createdAt | dateTime">{{ item.createdAt | relative }}</span></td>
+                  <td data-label="Arquivos" class="num">{{ item.fileCount }}</td>
+                  <td data-label="Estado"><app-status-chip [status]="item.status" /></td>
+                  <td data-label="Saúde"><app-health-badge [score]="item.healthScore" [compact]="true" /></td>
+                  <td data-label="Itens ALTA" class="num" [class.hot]="item.highPriorityItems">{{ item.highPriorityItems }}</td>
+                  <td data-label="Avisos JMC" class="num">{{ item.warningFindings }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
       <nav class="pager" aria-label="Paginação">
-        <button type="button" (click)="goTo(currentPage() - 1)" [disabled]="currentPage() === 0">‹ Anterior</button>
-        <span>Página {{ currentPage() + 1 }} de {{ totalPages() || 1 }}</span>
-        <button type="button" (click)="goTo(currentPage() + 1)" [disabled]="currentPage() + 1 >= totalPages()">Próxima ›</button>
+        <button type="button" class="btn sm" (click)="goTo(currentPage() - 1)" [disabled]="currentPage() === 0">
+          <app-icon name="arrow-left" [size]="14" /> Anterior</button>
+        <span class="muted">Página {{ currentPage() + 1 }} de {{ totalPages() || 1 }}</span>
+        <button type="button" class="btn sm" (click)="goTo(currentPage() + 1)" [disabled]="currentPage() + 1 >= totalPages()">
+          Próxima <app-icon name="arrow-right" [size]="14" /></button>
       </nav>
     } @else {
-      <app-empty-state title="Nenhuma análise ainda" message="Envie gravações JFR para começar.">
-        <a routerLink="/upload">Enviar gravações</a>
-      </app-empty-state>
+      <div class="panel">
+        <app-empty-state title="Nenhuma análise ainda" message="Envie gravações JFR para começar.">
+          <a routerLink="/upload" class="btn primary">Enviar gravações</a>
+        </app-empty-state>
+      </div>
     }
   }
 </div>

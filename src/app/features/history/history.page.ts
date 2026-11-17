@@ -6,6 +6,7 @@ import { AnalysesApi } from '../../core/api/analyses.api';
 import { HistoryItem, HistoryPage as HistoryPageModel } from '../../core/api/models';
 import { SoftwareApi } from '../../core/api/software.api';
 import { HealthBadge } from '../../shared/components/health-badge';
+import { Icon } from '../../shared/components/icon';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/states';
 import { StatusChip } from '../../shared/components/status-chip';
 import { DateTimePipe, RelativeTimePipe } from '../../shared/pipes/format.pipes';
@@ -17,7 +18,7 @@ export const PAGE_SIZES = [20, 50, 100] as const;
 @Component({
   selector: 'app-history-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, HealthBadge, StatusChip, EmptyState, ErrorState, LoadingState, DateTimePipe, RelativeTimePipe],
+  imports: [RouterLink, HealthBadge, Icon, StatusChip, EmptyState, ErrorState, LoadingState, DateTimePipe, RelativeTimePipe],
   templateUrl: './history.page.html',
   styleUrl: './history.page.scss',
 })
