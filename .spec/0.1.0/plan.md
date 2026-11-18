@@ -238,6 +238,7 @@ O bloco `frontend` do `docker-compose.yml` da API é ativado (ver nota 07 do fro
 | Tabelas com rolagem lateral | — | `.table-wrap` com `tabindex="0"`, `role="region"` e `aria-label` | o axe exige que região rolável seja alcançável pelo teclado |
 | Estilos dos blocos | um `blocks.scss` | `diagnosis-list.scss` separado | orçamento de 6 kB de estilo por componente |
 | CSS global no build de produção | padrão do Angular (CSS crítico inline) | `optimization.styles.inlineCritical: false` no `angular.json` + E2E que confere um estilo global | o Angular carrega o `styles.css` com `media="print"` e troca por um `<script>` inline; a CSP do Nginx (`script-src 'self'`) bloqueia o script e o CSS global nunca era aplicado |
+| Clone no Windows | — | o `Dockerfile` remove `\r` do `40-runtime-config.sh` e do template do Nginx; `.gitattributes` força LF | com CRLF, o `#!/bin/sh\r` dava `not found` e o `frontend` reiniciava sem parar |
 | Teclado com menus fixos | — | foco no `main` a cada troca de caminho (não de query/fragmento) | com o `body` sem rolagem, PageDown/Espaço não faziam nada até clicar no conteúdo |
 | Seção visível na barra | `IntersectionObserver` | posição de rolagem do `main` (`requestAnimationFrame`) | o observador marcava a seção anterior quando o bloco era alto |
 

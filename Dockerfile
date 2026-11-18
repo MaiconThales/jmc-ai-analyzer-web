@@ -17,6 +17,10 @@ RUN sed -i 's/^user .*;//' /etc/nginx/nginx.conf \
     && chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/conf.d /usr/share/nginx/html
 COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
 COPY docker/40-runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
+# Clonado no Windows (core.autocrlf), o script e o template vêm com CRLF: o "#!/bin/sh\r" dá "not found".
+# Remove o \r e garante a permissão de execução, seja qual for a origem dos arquivos.
+RUN sed -i 's/\r$//' /docker-entrypoint.d/40-runtime-config.sh /etc/nginx/templates/default.conf.template \
+    && chmod 755 /docker-entrypoint.d/40-runtime-config.sh
 COPY --from=build --chown=nginx:nginx /build/dist/jmc-ai-analyzer-web/browser /usr/share/nginx/html
 ENV API_UPSTREAM=http://api:8080 \
     POLLING_INTERVAL_MS=2000 \
